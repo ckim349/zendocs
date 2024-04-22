@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Editor, Transforms, Element, createEditor, BaseEditor, Descendant } from 'slate'
 import { Slate, Editable, withReact, ReactEditor } from 'slate-react'
 import './App.css'
@@ -13,13 +13,6 @@ declare module 'slate' {
     Text: CustomText;
   }
 }
-
-const initialValue: Descendant[] = [
-  {
-    type: 'paragraph',
-    children: [{ text: 'A line of text in a paragraph.' }],
-  },
-]
 
 const CustomEditor = {
   isBoldMarkActive(editor) {
@@ -49,7 +42,7 @@ const CustomEditor = {
     Transforms.setNodes(
       editor,
       { type: isActive ? null : 'code' },
-      { match: n => Editor.isBlock(editor, n) }
+      { match: n => Element.isElement(n) && Editor.isBlock(editor, n) }
     )
   },
 }
@@ -81,6 +74,18 @@ const Leaf = props => {
 function App() {
   const [editor] = useState(() => withReact(createEditor()));
 
+  // Update the initial content to be pulled from Local Storage if it exists.
+  const initialValue = useMemo(
+    () =>
+      JSON.parse(localStorage.getItem('content')) || [
+        {
+          type: 'paragraph',
+          children: [{ text: 'A line of text in a paragraph.' }],
+        },
+      ],
+    []
+  )
+
   // Define a rendering function based on the element passed to `props`. We use
   // `useCallback` here to memoize the function for subsequent renders.
   const renderElement = useCallback(props => {
@@ -97,7 +102,38 @@ function App() {
   }, []);
   
   return (
-    <Slate editor={editor} initialValue={initialValue}>
+    <Slate 
+      editor={editor} 
+      initialValue={initialValue}
+      onChange={value => {
+        const isAstChange = editor.operations.some(
+          op => 'set_selection' !== op.type
+        )
+        if (isAstChange) {
+          // Save the value to Local Storage.
+          const content = JSON.stringify(value)
+          localStorage.setItem('content', content)
+        }
+      }}
+    >
+      <div>
+        <button
+          onMouseDown={event => {
+            event.preventDefault()
+            CustomEditor.toggleBoldMark(editor)
+          }}
+        >
+          Bold
+        </button>
+        <button
+          onMouseDown={event => {
+            event.preventDefault()
+            CustomEditor.toggleCodeBlock(editor)
+          }}
+        >
+          Code Block
+        </button>
+      </div>
       <Editable 
         renderElement={renderElement}
         renderLeaf={renderLeaf}
