@@ -2,46 +2,14 @@ import { useCallback, useMemo, useState } from 'react'
 import { Editor, Transforms, Element, createEditor, BaseEditor, Descendant } from 'slate'
 import { Slate, Editable, withReact, ReactEditor } from 'slate-react'
 import { withHistory } from 'slate-history'
+import { toggleFormat } from '../utils/Format'
+import Toolbar from './Toolbar'
 
 enum Hotkeys {
   'b' = 'bold',
   'i' = 'italic',
   'u' = 'underline',
   '`' = 'code'
-}
-
-const toggleFormat = (editor, format) => {
-  if (format === 'code') {
-    toggleCode(editor);
-  } else {
-    // Checks current format then toggles it
-    const isActive = isFormatActive(editor, format)
-
-    if (isActive) {
-      Editor.removeMark(editor, format)
-    } else {
-      Editor.addMark(editor, format, true)
-    }
-  }
-}
-
-const isFormatActive = (editor, format) => {
-  const marks = Editor.marks(editor)
-  return marks ? marks[format] === true : false
-}
-
-const toggleCode = (editor) => {
-  // Checks current code format then toggles it
-  const [match] = Editor.nodes(editor, {
-    match: n => n.type === 'code',
-  })
-  const isActive = !!match;
-
-  Transforms.setNodes(
-    editor,
-    { type: isActive ? 'paragraph' : 'code' },
-    { match: n => Element.isElement(n) && Editor.isBlock(editor, n) }
-  )
 }
 
 const CodeElement = props => {
@@ -126,48 +94,7 @@ const Document = () => {
         }
       }}
     >
-      <div>
-        <button
-          onMouseDown={event => {
-            event.preventDefault()
-            toggleFormat(editor, 'bold')
-          }}
-        >
-          Bold
-        </button>
-        <button
-          onMouseDown={event => {
-            event.preventDefault()
-            toggleFormat(editor, 'italic')
-          }}
-        >
-          Italic
-        </button>
-        <button
-          onMouseDown={event => {
-            event.preventDefault()
-            toggleFormat(editor, 'underline')
-          }}
-        >
-          Underline
-        </button>
-        <button
-          onMouseDown={event => {
-            event.preventDefault()
-            toggleFormat(editor, 'strikethrough')
-          }}
-        >
-          Strikethrough
-        </button>
-        <button
-          onMouseDown={event => {
-            event.preventDefault()
-            toggleFormat(editor, 'code')
-          }}
-        >
-          Code Block
-        </button>
-      </div>
+      <Toolbar editor={editor} />
       <div className='editor'>
         <Editable 
           renderElement={renderElement}
