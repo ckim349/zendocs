@@ -94,13 +94,14 @@ const Document = () => {
         }
       }}
     >
-      <Toolbar editor={editor} />
+      <Toolbar />
       <div className='editor'>
         <Editable 
           renderElement={renderElement}
           renderLeaf={renderLeaf}
           spellCheck
           autoFocus
+          style={{ border: 'none', outline: 'none'}}
           onKeyDown={event => {
             if (!event.ctrlKey) {
               return

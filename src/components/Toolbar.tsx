@@ -1,6 +1,8 @@
+import { useSlate } from 'slate-react'
 import { toggleFormat } from '../utils/Format'
 
-const Toolbar = ({ editor }) => {
+const Toolbar = () => {
+  const editor = useSlate()
   return (
     <div>
         <button
