@@ -66,21 +66,25 @@ button:focus-visible {
   align-items: center;
   background-color: #f5f5f5; /* Light gray background similar to Google Docs */
   z-index: 9999;
+  overflow-y: auto; /* Enable vertical scrolling if content exceeds height */
 }
 
 .document {
   width: 90vw; /* Set width to 90% of the viewport width */
   max-width: 800px; /* Set maximum width to 800px */
   min-height: 80vh; /* Set minimum height to 80% of the viewport height */
-  max-height: 90vh; /* Set maximum height to 90% of the viewport height */
+  max-height: 100vh; /* Set maximum height to 90% of the viewport height */
   background-color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  overflow-y: auto; /* Enable vertical scrolling if content exceeds height */
+  cursor: text;
+
 }
 
 .editor {
   overflow-wrap: break-word;
+  width: 794px;
+  height: 1123px;
 }
 
 @media (max-width: 768px) {
