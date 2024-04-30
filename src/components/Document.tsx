@@ -1,12 +1,9 @@
 import TextEditor from './TextEditor'
 
-const Document = () => {
-  // const handleClick() => {
-  // } 
 
+const Document = () => {
   return (
-    // <div className='document' onClick={handleClick}>
-    <div className='document' >
+    <div className='document'>
       <TextEditor/>
     </div>
   )

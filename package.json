@@ -1,5 +1,5 @@
 {
-  "name": "shin-docs",
+  "name": "zendocs",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,15 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@liveblocks/client": "^1.11.2",
-    "@liveblocks/react": "^1.11.2",
-    "@liveblocks/yjs": "^1.11.2",
-    "@slate-yjs/core": "^1.0.2",
+    "@tiptap/extension-color": "^2.3.0",
+    "@tiptap/extension-text-style": "^2.3.0",
+    "@tiptap/pm": "^2.3.0",
+    "@tiptap/react": "^2.3.0",
+    "@tiptap/starter-kit": "^2.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "slate": "^0.102.0",
-    "slate-history": "^0.100.0",
-    "slate-react": "^0.102.0",
+    "tiptap": "^1.32.2",
     "yjs": "^13.6.14"
   },
   "devDependencies": {

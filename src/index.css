@@ -78,13 +78,6 @@ button:focus-visible {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
   cursor: text;
-
-}
-
-.editor {
-  overflow-wrap: break-word;
-  width: 794px;
-  height: 1123px;
 }
 
 @media (max-width: 768px) {
