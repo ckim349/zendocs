@@ -1,7 +1,4 @@
-import {
-  BubbleMenu,
-  useCurrentEditor,
-} from '@tiptap/react'
+import { BubbleMenu, useCurrentEditor } from '@tiptap/react'
 import BaseTools from './BaseTools'
 
 const HoveringToolbar = () => {
