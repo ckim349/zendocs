@@ -1,7 +1,7 @@
 import { useCurrentEditor } from "@tiptap/react";
 import BaseTools from './BaseTools'
 
-const Menubar = () => {
+const Toolbar = () => {
   const { editor } = useCurrentEditor();
 
   if (!editor) {
@@ -98,4 +98,4 @@ const Menubar = () => {
   );
 };
 
-export default Menubar;
+export default Toolbar
