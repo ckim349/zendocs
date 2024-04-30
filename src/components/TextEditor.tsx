@@ -4,6 +4,8 @@ import TextStyle from '@tiptap/extension-text-style'
 import StarterKit from '@tiptap/starter-kit'
 import { EditorProvider } from '@tiptap/react'
 import Typography from '@tiptap/extension-typography'
+import Image from '@tiptap/extension-image'
+import Dropcursor from '@tiptap/extension-dropcursor'
 
 import Toolbar from "./Toolbar"
 import HoveringToolbar from './HoveringToolbar'
@@ -24,15 +26,19 @@ const extensions = [
   }),
   Typography,
   SmilieReplacer,
+  Image,
+  Dropcursor,
 ]
 
 const content = `a`
 
 const TextEditor = () => {
   return (
-    <EditorProvider slotBefore={<Toolbar />} extensions={extensions} content={content} >
-      <HoveringToolbar/>
-    </EditorProvider>
+    <>
+      <EditorProvider slotBefore={<Toolbar />} extensions={extensions} content={content} >
+        <HoveringToolbar/>
+      </EditorProvider>
+    </>
   )
 }
 

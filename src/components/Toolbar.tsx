@@ -8,9 +8,20 @@ const Toolbar = () => {
     return null;
   }
 
+  const addImage = () => {
+    const url = window.prompt('URL')
+
+    if (url) {
+      editor.chain().focus().setImage({ src: url }).run()
+    }
+  }
+
   return (
     <>
       <BaseTools />
+      <button onClick={addImage}>
+        Add image
+      </button>
       <button onClick={() => editor.chain().focus().clearNodes().run()}>
         clear nodes
       </button>
