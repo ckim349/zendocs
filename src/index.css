@@ -5,35 +5,81 @@
 
   color-scheme: light dark;
   color: black;
-  background-color: #242424;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --background-color: #f6f6f6;
+  --foreground-color: #e8e8e8;
+  --primary-text-color: #0a0a0a;
+  --secondary-text-color: #ffffff;
+  --toggle-bg: #808080;
+  --toggle-fg: #ffffff;
 }
 
-body {
-  margin: 0;
+[data-theme="dark"] {
+  --background-color: #0a0a0a;
+  --foreground-color: #1c1c1c;
+  --primary-text-color: #f6f6f6;
+  --secondary-text-color: #0a0a0a;
+  --toggle-bg: #283452;
+  --toggle-fg: #00a6ff;
+}
+
+.toggle-container {
+  position: absolute;
+  top: 0em;
+  right: 1em;
+}
+
+.toggle {
+  visibility: hidden;
+}
+
+.toggle + label {
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  align-items: center;
+  font-size: 1.1em;
+  cursor: pointer;
+  color: var(--primary-text-color);
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.toggle + label::before {
+  content: "";
+  height: 1em;
+  width: 2em;
+  border-radius: 1em;
+  background-color: var(--toggle-bg);
+  margin-right: 0.5em;
+  transition: background-color 250ms ease-in-out;
+}
+
+.toggle + label::after {
+  content: "";
+  height: 0.8em;
+  width: 0.8em;
+  border-radius: 1em;
+  background-color: var(--toggle-fg);
+  position: absolute;
+  left: 0.2em;
+  transition: background-color 250ms ease-in-out, transform 250ms ease-in-out;
+}
+
+.toggle:checked + label::after {
+  transform: translateX(100%);
 }
 
 button {
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: 1px solid;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -45,16 +91,6 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
-
 .container {
   position: fixed;
   top: 0;
@@ -64,7 +100,9 @@ button:focus-visible {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f5f5f5; /* Light gray background similar to Google Docs */
+  background-color: var(--foreground-color);
+  color: var(--primary-text-color);
+  transition: background-color 0.25s ease-in-out;
   z-index: 9999;
   overflow-y: auto; /* Enable vertical scrolling if content exceeds height */
 }
@@ -74,7 +112,7 @@ button:focus-visible {
   max-width: 800px; /* Set maximum width to 800px */
   min-height: 80vh; /* Set minimum height to 80% of the viewport height */
   max-height: 100vh; /* Set maximum height to 90% of the viewport height */
-  background-color: white;
+  background-color: var(--background-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
   cursor: text;
@@ -93,7 +131,7 @@ button:focus-visible {
 }
 
 .react-component-with-content {
-  background: #FAF594;
+  background: #0080ff;
   border: 3px solid #0D0D0D;
   border-radius: 0.5rem;
   margin: 1rem 0;

@@ -27,6 +27,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tiptap": "^1.32.2",
+    "use-local-storage": "^3.0.0",
     "yjs": "^13.6.14"
   },
   "devDependencies": {
