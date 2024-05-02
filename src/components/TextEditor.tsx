@@ -1,16 +1,9 @@
-import { useCurrentEditor } from '@tiptap/react'
-
 import HoveringToolbar from './HoveringToolbar'
 
-const TextEditor = () => {
-  const { editor } = useCurrentEditor()
-
-  if (!editor) {
-    return null
-  }
+const TextEditor = ({ editor }) => {
   return (
     <>
-      <HoveringToolbar/>
+      <HoveringToolbar editor={editor} />
       <div className="character-count">
         {editor.storage.characterCount.characters()} characters
         <br />

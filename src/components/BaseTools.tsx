@@ -1,12 +1,4 @@
-import { useCurrentEditor } from '@tiptap/react'
-
-const BaseTools = () => {
-  const { editor } = useCurrentEditor()
-
-  if (!editor) {
-    return null
-  }
-
+const BaseTools = ({ editor }) => {
   return (
     <>
       <button
@@ -20,7 +12,7 @@ const BaseTools = () => {
         }
         className={editor.isActive('bold') ? 'is-active' : ''}
       >
-        bold
+        B
       </button>
       <button
         onClick={() => editor.chain().focus().toggleItalic().run()}

@@ -1,13 +1,6 @@
-import { useCurrentEditor } from "@tiptap/react";
 import BaseTools from './BaseTools'
 
-const Toolbar = () => {
-  const { editor } = useCurrentEditor();
-
-  if (!editor) {
-    return null;
-  }
-
+const Toolbar = ({ editor }) => {
   const addImage = () => {
     const url = window.prompt('URL')
 
@@ -18,7 +11,7 @@ const Toolbar = () => {
 
   return (
     <div className="toolbar">
-      <BaseTools />
+      <BaseTools editor={editor} />
       <button onClick={addImage}>
         Add image
       </button>

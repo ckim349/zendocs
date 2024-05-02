@@ -1,16 +1,10 @@
-import { BubbleMenu, useCurrentEditor } from '@tiptap/react'
+import { BubbleMenu } from '@tiptap/react'
 import BaseTools from './BaseTools'
 
-const HoveringToolbar = () => {
-  const { editor } = useCurrentEditor()
-
-  if (!editor) {
-    return null
-  }
-
+const HoveringToolbar = ({ editor }) => {
   return (
     <BubbleMenu tippyOptions={{ duration: 100 }} editor={editor}>
-      <BaseTools />
+      <BaseTools editor={editor}/>
     </BubbleMenu>
   )
 }

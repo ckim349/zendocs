@@ -104,11 +104,12 @@ button:focus-visible {
   background-color: var(--foreground-color);
   color: var(--primary-text-color);
   transition: background-color 0.25s ease-in-out;
-  z-index: 9999;
+  z-index: 999;
   overflow-y: auto; /* Enable vertical scrolling if content exceeds height */
 }
 
 .document {
+  margin-top: 50px;
   width: 90vw; /* Set width to 90% of the viewport width */
   max-width: 800px; /* Set maximum width to 800px */
   padding-bottom: var(--document-height);
@@ -122,6 +123,13 @@ button:focus-visible {
   .document {
     width: 90%; /* Adjust width for smaller screens */
   }
+}
+
+.toolbar {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
 }
 
 .tiptap.ProseMirror {
