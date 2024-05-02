@@ -17,7 +17,7 @@ const Toolbar = () => {
   }
 
   return (
-    <>
+    <div className="toolbar">
       <BaseTools />
       <button onClick={addImage}>
         Add image
@@ -105,7 +105,7 @@ const Toolbar = () => {
       >
         redo
       </button>
-    </>
+    </div>
   );
 };
 
