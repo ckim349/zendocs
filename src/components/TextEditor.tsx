@@ -1,6 +1,10 @@
+import { useCurrentEditor } from '@tiptap/react'
 import HoveringToolbar from './HoveringToolbar'
 
 const TextEditor = ({ editor }) => {
+  if (!editor) {
+    return null;
+  }
   return (
     <>
       <HoveringToolbar editor={editor} />

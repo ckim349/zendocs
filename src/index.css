@@ -73,7 +73,7 @@
   transform: translateX(100%);
 }
 
-button {
+/* button {
   border-radius: 8px;
   border: 1px solid;
   padding: 0.6em 1.2em;
@@ -87,10 +87,48 @@ button {
 }
 button:hover {
   border-color: #646cff;
-}
+} */
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+.format-button {
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 5px;
+  border: 1px solid #ccc;
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
+  cursor: pointer;
+  border-radius: 4px;
+}
+.format-button:hover {
+  background-color: #e0e0e0;
+}
+
+.color-input {
+  padding: 3px;
+  border: 1px solid #ccc;
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
+  cursor: pointer;
+  border-radius: 4px;
+}
+.color-input:hover {
+  background-color: #e0e0e0;
+}
+.color-input:focus,
+.color-input:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.toolbar {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
 }
 
 .container {
@@ -123,13 +161,6 @@ button:focus-visible {
   .document {
     width: 90%; /* Adjust width for smaller screens */
   }
-}
-
-.toolbar {
-  position: fixed;
-  z-index: 9999;
-  top: 0;
-  left: 0;
 }
 
 .tiptap.ProseMirror {
