@@ -1,4 +1,14 @@
+import { Menu } from '@headlessui/react'
+
 const BaseTools = ({ editor }) => {
+  const addImage = () => {
+    const url = window.prompt('URL')
+
+    if (url) {
+      editor.chain().focus().setImage({ src: url }).run()
+    }
+  }
+
   return (
     <>
       <button
@@ -86,6 +96,13 @@ const BaseTools = ({ editor }) => {
         value={editor.getAttributes('textStyle').color}
         className='color-input'
       />
+      <button
+        onClick={() => editor.chain().focus().unsetHighlight().run()}
+        disabled={!editor.isActive('highlight')}
+        className='format-button'
+      >
+        Remove highlight
+      </button>
       <button 
         onClick={() => editor.chain().focus().setTextAlign('left').run()} 
         className={editor.isActive({ textAlign: 'left' }) ? 'is-active format-button' : 'format-button'}>
@@ -106,6 +123,87 @@ const BaseTools = ({ editor }) => {
         className={editor.isActive({ textAlign: 'justify' }) ? 'is-active format-button' : 'format-button'}>
         justify
       </button>
+      <button 
+        onClick={addImage}
+        className='format-button'  
+      >
+        Add image
+      </button>
+      <Menu>
+        <Menu.Button className='format-button menu-button'>
+          Text Type
+        </Menu.Button>
+          <Menu.Items className='menu-dropdown'>
+              <Menu.Item>
+                {({ active }) => (
+                  <button
+                    onClick={() => editor.chain().focus().setParagraph().run()}
+                    className={editor.isActive('paragraph') ? 'is-active format-button' : 'format-button'}
+                  >
+                    {active ? (
+                      <span>
+                        --
+                      </span>
+                    ) : (
+                      null
+                  )}
+                  Paragraph
+                </button>
+                )}
+              </Menu.Item>
+              <Menu.Item>
+                {({ active }) => (
+                  <button
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                    className={editor.isActive('heading', { level: 1 }) ? 'is-active format-button' : 'format-button'}
+                  >
+                    {active ? (
+                      <span>
+                        --
+                      </span>
+                    ) : (
+                      null
+                  )}
+                  Heading 1
+                </button>
+                )}
+              </Menu.Item>
+              <Menu.Item>
+                {({ active }) => (
+                  <button
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                    className={editor.isActive('heading', { level: 2 }) ? 'is-active format-button' : 'format-button'}
+                  >
+                    {active ? (
+                      <span>
+                        --
+                      </span>
+                    ) : (
+                      null
+                  )}
+                  Heading 2
+                </button>
+                )}
+              </Menu.Item>
+              <Menu.Item>
+                {({ active }) => (
+                  <button
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                    className={editor.isActive('heading', { level: 2 }) ? 'is-active format-button' : 'format-button'}
+                  >
+                    {active ? (
+                      <span>
+                        --
+                      </span>
+                    ) : (
+                      null
+                  )}
+                  Heading 3
+                </button>
+                )}
+              </Menu.Item>
+        </Menu.Items>
+      </Menu>
     </>
   )
 }
