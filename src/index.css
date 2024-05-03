@@ -202,15 +202,31 @@ button:focus-visible {
   }
 }
 
-.menu-button {
+.text-type-button {
   width: 110px;
 }
+.text-align-button {
+  width: 90px;
+}
 
-.menu-dropdown {
+.text-type-dropdown {
   text-align: right;
   display: flex;
   flex-direction: column;
   position: absolute;
   right: 0px;
   width: 110px;
+}
+
+.text-align-dropdown {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  right: 110px;
+  width: 90px;
+}
+
+.hovering-toolbar {
+  width: 200px; 
 }

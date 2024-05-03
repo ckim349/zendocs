@@ -5,6 +5,14 @@ const Toolbar = ({ editor }) => {
     return null;
   }
 
+  const addImage = () => {
+    const url = window.prompt('URL')
+
+    if (url) {
+      editor.chain().focus().setImage({ src: url }).run()
+    }
+  }
+
   return (
     <div className="toolbar">
       <button
@@ -28,6 +36,18 @@ const Toolbar = ({ editor }) => {
         className='format-button'
       >
         Redo
+      </button>
+      <button 
+        onClick={addImage}
+        className='format-button'  
+      >
+        Add image
+      </button>
+      <button
+        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+        className={editor.isActive('codeBlock') ? 'is-active format-button' : 'format-button'}
+      >
+        code
       </button>
       <BaseTools editor={editor} />
     </div>
