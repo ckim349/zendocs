@@ -2,18 +2,13 @@ import { BubbleMenu } from '@tiptap/react'
 import BaseTools from './BaseTools'
 
 const HoveringToolbar = ({ editor }) => {
-  const isHoveringToolbarDisabled = window.matchMedia('(max-width: 900px)').matches;
+  if (!editor) {
+    return null;
+  }
   return (
-    <div>
-      {isHoveringToolbarDisabled ? null
-        :
-        (
-          <BubbleMenu className='hovering-toolbar' tippyOptions={{ duration: 100 }} editor={editor}>
-            <BaseTools editor={editor}/>
-          </BubbleMenu>
-        )
-      }
-    </div>
+    <BubbleMenu className='hovering-toolbar' tippyOptions={{ duration: 100 }} editor={editor}>
+      <BaseTools editor={editor}/>
+    </BubbleMenu>
   )
 }
 

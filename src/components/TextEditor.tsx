@@ -5,9 +5,15 @@ const TextEditor = ({ editor }) => {
   if (!editor) {
     return null;
   }
+  const isHoveringToolbarDisabled = window.matchMedia('(max-width: 900px)').matches;
   return (
     <>
-      <HoveringToolbar editor={editor} />
+      {isHoveringToolbarDisabled ? null
+        :
+        (
+          <HoveringToolbar editor={editor} />
+        )
+      }
       <div className="character-count">
         {editor.storage.characterCount.characters()} characters
         <br />

@@ -47,7 +47,7 @@ const Toolbar = ({ editor }) => {
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
         className={editor.isActive('codeBlock') ? 'is-active format-button' : 'format-button'}
       >
-        code
+        Code
       </button>
       <BaseTools editor={editor} />
     </div>
