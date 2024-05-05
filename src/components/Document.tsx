@@ -15,6 +15,7 @@ import Collaboration from '@tiptap/extension-collaboration'
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
 import * as Y from 'yjs'
 import { TiptapCollabProvider } from '@hocuspocus/provider'
+import { IndexeddbPersistence } from 'y-indexeddb'
 
 import Drawing from "./DrawingExtension"
 import SmilieReplacer from './SmilieReplacer'
@@ -23,6 +24,9 @@ import Toolbar from './Toolbar'
 
 const Document = () => {
   const doc = new Y.Doc();
+
+  // Set up IndexedDB for local storage of the Y document
+  new IndexeddbPersistence('example-document', doc)
 
   const provider = new TiptapCollabProvider({
     name: "document.name", // Unique document identifier for syncing. This is your document name.
