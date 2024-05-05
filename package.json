@@ -14,6 +14,7 @@
     "@hocuspocus/provider": "^2.12.2",
     "@tiptap/extension-character-count": "^2.3.1",
     "@tiptap/extension-collaboration": "^2.3.1",
+    "@tiptap/extension-collaboration-cursor": "^2.3.1",
     "@tiptap/extension-color": "^2.3.0",
     "@tiptap/extension-document": "^2.3.1",
     "@tiptap/extension-dropcursor": "^2.3.0",
@@ -39,6 +40,7 @@
     "react-dom": "^18.2.0",
     "tiptap": "^1.32.2",
     "use-local-storage": "^3.0.0",
+    "y-indexeddb": "^9.0.12",
     "y-prosemirror": "^1.2.3",
     "y-websocket": "^2.0.2",
     "yjs": "^13.6.15"

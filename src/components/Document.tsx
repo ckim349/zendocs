@@ -12,6 +12,7 @@ import Underline from '@tiptap/extension-underline'
 import Highlight from '@tiptap/extension-highlight'
 import TextAlign from '@tiptap/extension-text-align'
 import Collaboration from '@tiptap/extension-collaboration'
+import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
 import * as Y from 'yjs'
 import { TiptapCollabProvider } from '@hocuspocus/provider'
 
@@ -41,6 +42,25 @@ const Document = () => {
         `)
       }
   }})
+
+  // provider.setAwarenessField("user", {
+  //   name: "Goon Goon",
+  //   color: "#ffcc00",
+  // });
+
+  // provider.on("awarenessChange", ({ states }) => {
+  //   console.log(states);
+  // });
+
+  // document.addEventListener("mousemove", (event) => {
+  //   // Share any information you like
+  //   provider.setAwarenessField("user", {
+  //     name: "Goon Goon",
+  //     color: "#ffcc00",
+  //     mouseX: event.clientX,
+  //     mouseY: event.clientY,
+  //   });
+  // });
 
   const editor = useEditor({
     extensions: [
@@ -73,6 +93,13 @@ const Document = () => {
       }),
       Collaboration.configure({
         document: doc
+      }),
+      CollaborationCursor.configure({
+        provider,
+        user: {
+          name: 'Goon Goon',
+          color: '#f783ac',
+        },
       }),
     ],
     content: ``,
