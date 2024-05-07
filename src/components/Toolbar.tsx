@@ -1,6 +1,7 @@
 import BaseTools from './BaseTools'
+import { CustomEditor } from './Document';
 
-const Toolbar = ({ editor }) => {
+const Toolbar = ({ editor }: {editor: CustomEditor}) => {
   if (!editor) {
     return null;
   }

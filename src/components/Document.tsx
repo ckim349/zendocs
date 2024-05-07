@@ -1,4 +1,4 @@
-import { EditorContent, useEditor } from '@tiptap/react'
+import { Editor, EditorContent, useEditor } from '@tiptap/react'
 import Typography from '@tiptap/extension-typography'
 import Image from '@tiptap/extension-image'
 import Dropcursor from '@tiptap/extension-dropcursor'
@@ -22,16 +22,18 @@ import SmilieReplacer from './SmilieReplacer'
 import TextEditor from './TextEditor'
 import Toolbar from './Toolbar'
 
+export type CustomEditor = Editor | null;
+
 const Document = () => {
   const doc = new Y.Doc();
 
   // Set up IndexedDB for local storage of the Y document
-  new IndexeddbPersistence('example-document', doc)
+  new IndexeddbPersistence('example-document', doc);
 
   const provider = new TiptapCollabProvider({
     name: "document.name", // Unique document identifier for syncing. This is your document name.
-    appId: '7j9y6m10', // Your Cloud Dashboard AppID or `baseURL` for on-premises
-    token: 'notoken', // Your JWT token
+    appId: '0k3q8d95', // Your Cloud Dashboard AppID or `baseURL` for on-premises
+    token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MTQ4NzE3NzQsIm5iZiI6MTcxNDg3MTc3NCwiZXhwIjoxNzE0OTU4MTc0LCJpc3MiOiJodHRwczovL2Nsb3VkLnRpcHRhcC5kZXYiLCJhdWQiOiIwazNxOGQ5NSJ9.pmTtqOAPJMN5Er3OpmEe_zsnMfJ1-USOaaCGThzxME4', // for testing
     document: doc,
 
     onSynced() {
@@ -47,29 +49,10 @@ const Document = () => {
       }
   }})
 
-  // provider.setAwarenessField("user", {
-  //   name: "Goon Goon",
-  //   color: "#ffcc00",
-  // });
-
-  // provider.on("awarenessChange", ({ states }) => {
-  //   console.log(states);
-  // });
-
-  // document.addEventListener("mousemove", (event) => {
-  //   // Share any information you like
-  //   provider.setAwarenessField("user", {
-  //     name: "Goon Goon",
-  //     color: "#ffcc00",
-  //     mouseX: event.clientX,
-  //     mouseY: event.clientY,
-  //   });
-  // });
 
   const editor = useEditor({
     extensions: [
       Color.configure({ types: [TextStyle.name, ListItem.name] }),
-      TextStyle.configure({ types: [ListItem.name] }),
       StarterKit.configure({
         bulletList: {
           keepMarks: true,
@@ -81,6 +64,7 @@ const Document = () => {
         },
         history: false,
       }),
+      TextStyle,
       Typography,
       SmilieReplacer,
       Image,
@@ -105,6 +89,7 @@ const Document = () => {
           color: '#f783ac',
         },
       }),
+      ListItem,
     ],
     content: ``,
   })

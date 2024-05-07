@@ -1,6 +1,7 @@
 import { Menu } from '@headlessui/react'
+import { CustomEditor } from './Document';
 
-const BaseTools = ({ editor }) => {
+const BaseTools = ({editor}: {editor: CustomEditor}) => {
   if (!editor) {
     return null;
   }
@@ -76,7 +77,7 @@ const BaseTools = ({ editor }) => {
       </button>
       <input
         type="color"
-        onInput={event => editor.chain().focus().setColor(event.target.value).run()}
+        onInput={(event: React.ChangeEvent<HTMLInputElement>) => editor.chain().focus().setColor(event.target.value).run()}
         value={editor.getAttributes('textStyle').color}
         className='color-input'
         id='colour'
@@ -84,7 +85,7 @@ const BaseTools = ({ editor }) => {
       <label htmlFor='colour'>A</label>
       <input
         type="color"
-        onInput={event => editor.chain().focus().setHighlight({color: event.target.value}).run()}
+        onInput={(event: React.ChangeEvent<HTMLInputElement>) => editor.chain().focus().setHighlight({color: event.target.value}).run()}
         value={editor.getAttributes('highlight').color}
         className='color-input'
         id='highlight'

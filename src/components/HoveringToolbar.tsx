@@ -1,7 +1,8 @@
 import { BubbleMenu } from '@tiptap/react'
 import BaseTools from './BaseTools'
+import { CustomEditor } from './Document';
 
-const HoveringToolbar = ({ editor }) => {
+const HoveringToolbar = ({ editor }: {editor: CustomEditor}) => {
   if (!editor) {
     return null;
   }
