@@ -65,7 +65,7 @@ const Document = () => {
         },
         orderedList: {
           keepMarks: true,
-          keepAttributes: false,
+          keepAttributes: true,
         },
         history: false,
       }),
