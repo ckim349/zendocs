@@ -21,10 +21,15 @@ import Drawing from "./DrawingExtension"
 import SmilieReplacer from './SmilieReplacer'
 import TextEditor from './TextEditor'
 import Toolbar from './Toolbar'
+import ToggleDarkMode from './ToggleDarkMode'
+import useLocalStorage from 'use-local-storage'
 
 export type CustomEditor = Editor | null;
 
 const Document = () => {
+  const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const [isDark, setIsDark] = useLocalStorage("isDark", preference);  
+
   const doc = new Y.Doc();
 
   // Set up IndexedDB for local storage of the Y document
@@ -95,14 +100,16 @@ const Document = () => {
   })
 
   return (
-    <div>
-      <Toolbar editor={editor}/>
-      <div className='document'>
-        <EditorContent editor={editor} /> 
-        <TextEditor editor={editor} />
+    <div className='container' data-theme={isDark ? "dark" : "light"}>
+      <ToggleDarkMode handleChange={() => setIsDark(!isDark)} isChecked={isDark}/>
+      <div>
+        <Toolbar editor={editor}/>
+        <div className='document'>
+          <EditorContent editor={editor} /> 
+          <TextEditor editor={editor} />
+        </div>
       </div>
     </div>
-
   )
 }
 

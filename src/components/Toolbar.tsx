@@ -26,7 +26,7 @@ const Toolbar = ({ editor }: {editor: CustomEditor}) => {
         className='format-button'
       >
         Undo
-      </button>
+      </button> 
       <button
         onClick={() => editor.chain().focus().redo().run()}
         disabled={!editor.can()

@@ -78,7 +78,7 @@ const BaseTools = ({editor}: {editor: CustomEditor}) => {
       <input
         type="color"
         onInput={(event: React.ChangeEvent<HTMLInputElement>) => editor.chain().focus().setColor(event.target.value).run()}
-        value={editor.getAttributes('textStyle').color}
+        value={editor.getAttributes('textStyle').color || '#000000'}
         className='color-input'
         id='colour'
       />
@@ -86,7 +86,7 @@ const BaseTools = ({editor}: {editor: CustomEditor}) => {
       <input
         type="color"
         onInput={(event: React.ChangeEvent<HTMLInputElement>) => editor.chain().focus().setHighlight({color: event.target.value}).run()}
-        value={editor.getAttributes('highlight').color}
+        value={editor.getAttributes('highlight').color || '#000000'}
         className='color-input'
         id='highlight'
       />

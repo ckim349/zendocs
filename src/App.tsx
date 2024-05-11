@@ -1,17 +1,18 @@
-import useLocalStorage from "use-local-storage";
+import { Routes, Route } from 'react-router-dom'
 
-import ToggleDarkMode from './components/ToggleDarkMode'
 import Document from './components/Document'
+import HomePage from "./components/HomePage";
+import ErrorPage from "./components/ErrorPage";
 
 function App() {
-  const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const [isDark, setIsDark] = useLocalStorage("isDark", preference);
-
   return (
-    <div className='container' data-theme={isDark ? "dark" : "light"}>
-      <ToggleDarkMode handleChange={() => setIsDark(!isDark)} isChecked={isDark}/>
-      <Document />
-    </div>
+    <>
+      <Routes>
+        <Route path="/" element={<HomePage />}/>
+        <Route path="/document" element={<Document />}/>
+        <Route path="*" element={<ErrorPage />} />
+      </Routes>
+    </>
   );
 }
 
