@@ -1,5 +1,5 @@
 import BaseTools from './BaseTools'
-import { CustomEditor } from './Document';
+import { CustomEditor } from './DocumentPage';
 
 const Toolbar = ({ editor }: {editor: CustomEditor}) => {
   if (!editor) {

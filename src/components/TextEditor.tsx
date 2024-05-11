@@ -1,5 +1,5 @@
 import HoveringToolbar from './HoveringToolbar'
-import { CustomEditor } from './Document';
+import { CustomEditor } from './DocumentPage';
 
 const TextEditor = ({ editor }: {editor: CustomEditor}) => {
   if (!editor) {

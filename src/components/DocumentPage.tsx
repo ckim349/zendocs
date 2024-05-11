@@ -7,12 +7,22 @@ import Gapcursor from '@tiptap/extension-gapcursor'
 import { Color } from '@tiptap/extension-color'
 import ListItem from '@tiptap/extension-list-item'
 import TextStyle from '@tiptap/extension-text-style'
-import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
 import Highlight from '@tiptap/extension-highlight'
 import TextAlign from '@tiptap/extension-text-align'
 import Collaboration from '@tiptap/extension-collaboration'
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
+import CodeBlock from '@tiptap/extension-code-block'
+import BulletList from '@tiptap/extension-bullet-list'
+import OrderedList from '@tiptap/extension-ordered-list'
+import Document from '@tiptap/extension-document'
+import Text from '@tiptap/extension-text'
+import Paragraph from '@tiptap/extension-paragraph'
+import Heading from '@tiptap/extension-heading'
+import Bold from '@tiptap/extension-bold'
+import Code from '@tiptap/extension-code'
+import Italic from '@tiptap/extension-italic'
+import Strike from '@tiptap/extension-strike'
 import * as Y from 'yjs'
 import { TiptapCollabProvider } from '@hocuspocus/provider'
 import { IndexeddbPersistence } from 'y-indexeddb'
@@ -26,7 +36,7 @@ import useLocalStorage from 'use-local-storage'
 
 export type CustomEditor = Editor | null;
 
-const Document = () => {
+const DocumentPage = () => {
   const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const [isDark, setIsDark] = useLocalStorage("isDark", preference);  
 
@@ -57,17 +67,22 @@ const Document = () => {
 
   const editor = useEditor({
     extensions: [
+      Document,
+      Text,
+      Paragraph,
+      Heading,
+      Bold,
+      Code,
+      Italic,
+      Strike,
       Color.configure({ types: [TextStyle.name, ListItem.name] }),
-      StarterKit.configure({
-        bulletList: {
-          keepMarks: true,
-          keepAttributes: false,
-        },
-        orderedList: {
-          keepMarks: true,
-          keepAttributes: true,
-        },
-        history: false,
+      BulletList.configure({
+        keepMarks: true,
+        keepAttributes: false,
+      }),
+      OrderedList.configure({
+        keepMarks: true,
+        keepAttributes: true,
       }),
       TextStyle,
       Typography,
@@ -94,6 +109,7 @@ const Document = () => {
           color: '#f783ac',
         },
       }),
+      CodeBlock,
       ListItem,
     ],
     content: ``,
@@ -113,4 +129,4 @@ const Document = () => {
   )
 }
 
-export default Document
+export default DocumentPage
