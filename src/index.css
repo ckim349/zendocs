@@ -17,6 +17,7 @@
   --secondary-text-color: #ffffff;
   --toggle-bg: #808080;
   --toggle-fg: #ffffff;
+  --button-hover-color: #e8e8e8;
 
   --document-height: calc(100vh - 250px);
 }
@@ -28,6 +29,7 @@
   --secondary-text-color: #0a0a0a;
   --toggle-bg: #283452;
   --toggle-fg: #00a6ff;
+  --button-hover-color: #343434;
 }
 
 .toggle-container {
@@ -105,7 +107,7 @@ button:focus-visible {
   border-radius: 4px;
 }
 .format-button:hover {
-  background-color: #e0e0e0;
+  background-color: var(--button-hover-color);
 }
 
 .color-input {
