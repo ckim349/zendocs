@@ -33,7 +33,6 @@ import TextEditor from './TextEditor'
 import Toolbar from './Toolbar'
 import ToggleDarkMode from './ToggleDarkMode'
 import useLocalStorage from 'use-local-storage'
-import { PageBreak } from './PageBreak'
 
 export type CustomEditor = Editor | null;
 
@@ -112,7 +111,6 @@ const DocumentPage = () => {
       }),
       CodeBlock,
       ListItem,
-      PageBreak
     ],
     content: ``,
   })
