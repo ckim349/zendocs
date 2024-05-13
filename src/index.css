@@ -13,6 +13,7 @@
 
   --background-color: #f6f6f6;
   --foreground-color: #e8e8e8;
+  --shadow-color: #0a0a0a;
   --primary-text-color: #0a0a0a;
   --secondary-text-color: #ffffff;
   --toggle-bg: #808080;
@@ -25,6 +26,7 @@
 [data-theme="dark"] {
   --background-color: #0a0a0a;
   --foreground-color: #1c1c1c;
+  --shadow-color: #f6f6f6;
   --primary-text-color: #f6f6f6;
   --secondary-text-color: #0a0a0a;
   --toggle-bg: #283452;
@@ -150,6 +152,10 @@ button:focus-visible {
   color: var(--primary-text-color);
   transition: background-color 0.25s ease-in-out;
   z-index: 999;
+}
+
+.home {
+  flex-direction: column;
 }
 
 .document {
@@ -298,7 +304,10 @@ button:focus-visible {
   justify-content: center;
   align-items: center;
   background-color: var(--background-color);
-
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+  padding: 8px;
 }
 
 .home-search-bar {
@@ -306,7 +315,55 @@ button:focus-visible {
   justify-content: center;
   align-items: center;
   background-color: var(--foreground-color);
-  width: 400px;
-  height: 100px;
+  color: var(--primary-text-color);
+  width: 500px;
+  height: 46px;
   font-size: large;
+  border-color: transparent;
+  border-radius: 8px;
+  border-style: solid;
+  border-width: 4px;
+  padding: 20px;
+}
+
+.home-search-bar:focus {
+  outline: none;
+  box-shadow: 0px 0px 5px var(--shadow-color);
+}
+
+.home-document-grid {
+  display: flex;
+  justify-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  max-width: 1150px;
+  min-height: 700px;
+}
+
+.home-document-card {
+  border: 1px solid #dfe1e5;
+  border-radius: 3px;
+  cursor: pointer;
+  opacity: 1;
+  color: #444;
+  background-color: var(--background-color);
+  display: inline-block;
+  margin: 30px;
+  width: 210px;
+  height: 340px;
+  font-size: 14px;
+}
+
+.home-document-card-content {
+  width: 210px;
+  height: 280px;
+  font-size: 14px;
+}
+
+.home-document-card-title {
+  border-top: 1px solid #e2e2e2;
+  padding: 16px 8px 14px 16px;
+  position: relative;
+  display: block;
+  height: 60px;
 }

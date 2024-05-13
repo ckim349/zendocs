@@ -4,6 +4,7 @@ import { DarkModeProps } from "./DocumentPage";
 import ToggleDarkMode from "./ToggleDarkMode";
 
 const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
+  // once document object is created change string to thingy
   const [documents, setDocuments] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -22,28 +23,33 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
       return;
     }
 
+    const value = inputRef.current!.value;
+
     setDocuments(prev => {
-      return [...prev, inputRef.current!.value]
+      return [...prev, value]
     });
+
     inputRef.current!.value = "";
   }
 
-
   return (
-    <div className='container' data-theme={isDark ? "dark" : "light"}>
-      <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
+    <div className='container home' data-theme={isDark ? "dark" : "light"}>
       <div className="home-nav-bar">
         <input type="search" onChange={e => setQuery(e.target.value)} className="home-search-bar" placeholder="Search for documents..." />
+        <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
       </div>
-      <Link to="/document">New Document</Link>
+
+      <Link to="/document"><div className="home-document-card">New Document</div></Link>
       <form onSubmit={onSubmit}>
         New document: <input ref={inputRef} type="text" />
         <button type="submit">Add document</button>
       </form>
-      <div className="recent-documents">
-        <h3>Documents</h3>
-        {filteredDocuments.map(document => (
-          <div>{document}</div>
+      <div className="home-document-grid">
+        {filteredDocuments.map((document, index) => (
+          <div className="home-document-card" key={index}>
+            <div className="home-document-card-content">document content</div>
+            <div className="home-document-card-title">{document}</div>
+          </div>
         ))}
       </div>
     </div>
