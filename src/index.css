@@ -136,15 +136,6 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-.toolbar {
-  position: fixed;
-  z-index: 9999;
-  top: 0;
-  left: 0;
-  width: 100%;
-
-}
-
 .container {
   top: 0;
   left: 0;
@@ -153,14 +144,11 @@ button:focus-visible {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   background-color: var(--foreground-color);
   color: var(--primary-text-color);
   transition: background-color 0.25s ease-in-out;
   z-index: 999;
-}
-
-.home {
-  flex-direction: column;
 }
 
 .document {
@@ -174,6 +162,30 @@ button:focus-visible {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
   cursor: text;
+}
+
+.document-nav-bar {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--background-color);
+  box-sizing: border-box;
+  position: relative;
+  padding: 8px;
+  height: 100px;
+}
+
+.toolbar {
+  padding-top: 5px;
+  position: relative;
+  display: block;
+  height: 20px;
 }
 
 .tiptap.ProseMirror {
@@ -243,6 +255,10 @@ button:focus-visible {
   }
 }
 
+.menu-dropdown {
+  display: inline-block;
+}
+
 .text-type-button {
   width: 110px;
 }
@@ -256,7 +272,6 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   position: absolute;
-  right: 0px;
   width: 110px;
 }
 
@@ -265,7 +280,6 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   position: absolute;
-  right: 110px;
   width: 90px;
 }
 

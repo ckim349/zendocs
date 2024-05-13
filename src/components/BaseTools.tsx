@@ -1,7 +1,7 @@
 import { Menu } from '@headlessui/react'
 import { CustomEditor } from './DocumentPage';
 
-const BaseTools = ({editor}: {editor: CustomEditor}) => {
+const BaseTools = ({ editor }: { editor: CustomEditor }) => {
   if (!editor) {
     return null;
   }
@@ -38,10 +38,10 @@ const BaseTools = ({editor}: {editor: CustomEditor}) => {
         onClick={() => editor.chain().focus().toggleUnderline().run()}
         disabled={
           !editor.can()
-          .chain()
-          .focus()
-          .toggleUnderline()
-          .run()
+            .chain()
+            .focus()
+            .toggleUnderline()
+            .run()
         }
         className={editor.isActive('underline') ? 'is-active format-button' : 'format-button'}
       >
@@ -85,7 +85,7 @@ const BaseTools = ({editor}: {editor: CustomEditor}) => {
       <label htmlFor='colour'>A</label>
       <input
         type="color"
-        onInput={(event: React.ChangeEvent<HTMLInputElement>) => editor.chain().focus().setHighlight({color: event.target.value}).run()}
+        onInput={(event: React.ChangeEvent<HTMLInputElement>) => editor.chain().focus().setHighlight({ color: event.target.value }).run()}
         value={editor.getAttributes('highlight').color || '#000000'}
         className='color-input'
         id='highlight'
@@ -98,79 +98,79 @@ const BaseTools = ({editor}: {editor: CustomEditor}) => {
       >
         Remove highlight
       </button>
-      <Menu>
+      <Menu as='div' className='menu-dropdown'>
         <Menu.Button className='format-button text-align-button'>
           Text Align
         </Menu.Button>
-          <Menu.Items className='text-align-dropdown'>
-            <Menu.Item>
-              <button 
-                onClick={() => editor.chain().focus().setTextAlign('left').run()} 
-                className={editor.isActive({ textAlign: 'left' }) ? 'is-active format-button' : 'format-button'}
-              >
-                Left
-              </button>
-            </Menu.Item>
-            <Menu.Item>
-              <button 
-                onClick={() => editor.chain().focus().setTextAlign('center').run()} 
-                className={editor.isActive({ textAlign: 'center' }) ? 'is-active format-button' : 'format-button'}>
-                Center
-              </button>
-            </Menu.Item>
-            <Menu.Item>
-              <button 
-                onClick={() => editor.chain().focus().setTextAlign('right').run()} 
-                className={editor.isActive({ textAlign: 'right' }) ? 'is-active format-button' : 'format-button'}>
-                Right
-              </button>
-            </Menu.Item>
-            <Menu.Item>
-              <button 
-                onClick={() => editor.chain().focus().setTextAlign('justify').run()} 
-                className={editor.isActive({ textAlign: 'justify' }) ? 'is-active format-button' : 'format-button'}>
-                Justify
-              </button>
-            </Menu.Item>
+        <Menu.Items className='text-align-dropdown'>
+          <Menu.Item>
+            <button
+              onClick={() => editor.chain().focus().setTextAlign('left').run()}
+              className={editor.isActive({ textAlign: 'left' }) ? 'is-active format-button' : 'format-button'}
+            >
+              Left
+            </button>
+          </Menu.Item>
+          <Menu.Item>
+            <button
+              onClick={() => editor.chain().focus().setTextAlign('center').run()}
+              className={editor.isActive({ textAlign: 'center' }) ? 'is-active format-button' : 'format-button'}>
+              Center
+            </button>
+          </Menu.Item>
+          <Menu.Item>
+            <button
+              onClick={() => editor.chain().focus().setTextAlign('right').run()}
+              className={editor.isActive({ textAlign: 'right' }) ? 'is-active format-button' : 'format-button'}>
+              Right
+            </button>
+          </Menu.Item>
+          <Menu.Item>
+            <button
+              onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+              className={editor.isActive({ textAlign: 'justify' }) ? 'is-active format-button' : 'format-button'}>
+              Justify
+            </button>
+          </Menu.Item>
         </Menu.Items>
       </Menu>
-      <Menu>
+      <Menu as='div' className='menu-dropdown'>
         <Menu.Button className='format-button text-type-button'>
           Text Type
         </Menu.Button>
-          <Menu.Items className='text-type-dropdown'>
-              <Menu.Item>
-                <button
-                  onClick={() => editor.chain().focus().setParagraph().run()}
-                  className={editor.isActive('paragraph') ? 'is-active format-button' : 'format-button'}
-                >
-                  Paragraph
-                </button>
-              </Menu.Item>
-              <Menu.Item>
-                <button
-                  onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                  className={editor.isActive('heading', { level: 1 }) ? 'is-active format-button' : 'format-button'}
-                >
-                  Heading 1
-                </button>
-              </Menu.Item>
-              <Menu.Item>
-                <button
-                  onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                  className={editor.isActive('heading', { level: 2 }) ? 'is-active format-button' : 'format-button'}
-                >
-                  Heading 2
-                </button>
-              </Menu.Item>
-              <Menu.Item>
-                <button
-                  onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                  className={editor.isActive('heading', { level: 2 }) ? 'is-active format-button' : 'format-button'}
-                >
-                  Heading 3
-                </button>
-              </Menu.Item>
+        <Menu.Items className='text-type-dropdown'>
+          <Menu.Item>
+            <button
+              onClick={() => editor.chain().focus().setParagraph().run()}
+              className={editor.isActive('paragraph') ? 'is-active format-button' : 'format-button'}
+            >
+              Paragraph
+            </button>
+          </Menu.Item>
+          <Menu.Item>
+            <button
+              onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+              className={editor.isActive('heading', { level: 1 }) ? 'is-active format-button' : 'format-button'}
+            >
+              Heading 1
+            </button>
+          </Menu.Item>
+          <Menu.Item>
+            <button
+              onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+              className={editor.isActive('heading', { level: 2 }) ? 'is-active format-button' : 'format-button'}
+            >
+              Heading 2
+            </button>
+          </Menu.Item>
+          <Menu.Item>
+            <button
+              onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+              className={editor.isActive('heading', { level: 2 }) ? 'is-active format-button' : 'format-button'}
+            >
+              Heading 3
+            </button>
+          </Menu.Item>
         </Menu.Items>
       </Menu>
     </>

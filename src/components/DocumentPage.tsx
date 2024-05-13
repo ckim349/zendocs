@@ -123,9 +123,14 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
 
   return (
     <div className='container' data-theme={isDark ? "dark" : "light"}>
-      <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
-      <div>
+      <div className="document-nav-bar">
+        <div>
+
+        </div>
+        <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
         <Toolbar editor={editor} />
+      </div>
+      <div>
         <div className='document'>
           <EditorContent editor={editor} />
           <TextEditor editor={editor} />

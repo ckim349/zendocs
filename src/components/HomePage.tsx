@@ -33,7 +33,7 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
   }
 
   return (
-    <div className='container home' data-theme={isDark ? "dark" : "light"}>
+    <div className='container' data-theme={isDark ? "dark" : "light"}>
       <div className="home-nav-bar">
         <input type="search" onChange={e => setQuery(e.target.value)} className="home-search-bar" placeholder="Search for documents..." />
         <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
