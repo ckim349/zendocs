@@ -42,7 +42,7 @@
   visibility: hidden;
 }
 
-.toggle + label {
+.toggle+label {
   display: flex;
   align-items: center;
   font-size: 1.1em;
@@ -50,7 +50,7 @@
   color: var(--primary-text-color);
 }
 
-.toggle + label::before {
+.toggle+label::before {
   content: "";
   height: 1em;
   width: 2em;
@@ -60,7 +60,7 @@
   transition: background-color 250ms ease-in-out;
 }
 
-.toggle + label::after {
+.toggle+label::after {
   content: "";
   height: 0.8em;
   width: 0.8em;
@@ -71,7 +71,7 @@
   transition: background-color 250ms ease-in-out, transform 250ms ease-in-out;
 }
 
-.toggle:checked + label::after {
+.toggle:checked+label::after {
   transform: translateX(100%);
 }
 
@@ -106,6 +106,7 @@ button:focus-visible {
   cursor: pointer;
   border-radius: 4px;
 }
+
 .format-button:hover {
   background-color: var(--button-hover-color);
 }
@@ -118,9 +119,11 @@ button:focus-visible {
   cursor: pointer;
   border-radius: 4px;
 }
+
 .color-input:hover {
   background-color: #e0e0e0;
 }
+
 .color-input:focus,
 .color-input:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -132,7 +135,7 @@ button:focus-visible {
   top: 0;
   left: 0;
   width: 100%;
-  
+
 }
 
 .container {
@@ -151,8 +154,10 @@ button:focus-visible {
 
 .document {
   margin-top: 50px;
-  width: 90vw; /* Set width to 90% of the viewport width */
-  max-width: 800px; /* Set maximum width to 800px */
+  width: 90vw;
+  /* Set width to 90% of the viewport width */
+  max-width: 800px;
+  /* Set maximum width to 800px */
   padding-bottom: var(--document-height);
   background-color: var(--background-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -162,7 +167,8 @@ button:focus-visible {
 
 @media (max-width: 768px) {
   .document {
-    width: 90%; /* Adjust width for smaller screens */
+    width: 90%;
+    /* Adjust width for smaller screens */
   }
 }
 
@@ -236,6 +242,7 @@ button:focus-visible {
 .text-type-button {
   width: 110px;
 }
+
 .text-align-button {
   width: 90px;
 }
@@ -259,17 +266,15 @@ button:focus-visible {
 }
 
 .hovering-toolbar {
-  width: 200px; 
+  width: 200px;
 }
 
-@page {
-
-}
+@page {}
 
 @media print {
   body {
     background: none;
-    
+
   }
 
   .document {
@@ -281,7 +286,27 @@ button:focus-visible {
     align-self: flex-start;
   }
 
-  .toolbar, .toggle-container, .character-count {
+  .toolbar,
+  .toggle-container,
+  .character-count {
     display: none;
   }
+}
+
+.home-nav-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--background-color);
+
+}
+
+.home-search-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--foreground-color);
+  width: 400px;
+  height: 100px;
+  font-size: large;
 }

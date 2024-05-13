@@ -32,14 +32,15 @@ import SmilieReplacer from './SmilieReplacer'
 import TextEditor from './TextEditor'
 import Toolbar from './Toolbar'
 import ToggleDarkMode from './ToggleDarkMode'
-import useLocalStorage from 'use-local-storage'
 
 export type CustomEditor = Editor | null;
 
-const DocumentPage = () => {
-  const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const [isDark, setIsDark] = useLocalStorage("isDark", preference);  
+export interface DarkModeProps {
+  handleChange: () => void;
+  isDark: boolean;
+}
 
+const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   const doc = new Y.Doc();
 
   // Set up IndexedDB for local storage of the Y document
@@ -53,16 +54,17 @@ const DocumentPage = () => {
 
     onSynced() {
 
-      if( !doc.getMap('config').get('initialContentLoaded') && editor ){
+      if (!doc.getMap('config').get('initialContentLoaded') && editor) {
         doc.getMap('config').set('initialContentLoaded', true);
-  
+
         editor.commands.setContent(`
         <p>
           goon be gooning
         </p>
         `)
       }
-  }})
+    }
+  })
 
 
   const editor = useEditor({
@@ -121,11 +123,11 @@ const DocumentPage = () => {
 
   return (
     <div className='container' data-theme={isDark ? "dark" : "light"}>
-      <ToggleDarkMode handleChange={() => setIsDark(!isDark)} isChecked={isDark}/>
+      <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
       <div>
-        <Toolbar editor={editor}/>
+        <Toolbar editor={editor} />
         <div className='document'>
-          <EditorContent editor={editor} /> 
+          <EditorContent editor={editor} />
           <TextEditor editor={editor} />
         </div>
       </div>

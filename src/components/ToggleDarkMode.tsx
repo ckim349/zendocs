@@ -1,10 +1,6 @@
-interface ToggleProps {
-  handleChange: () => void;
-  isChecked: boolean;
-}
+import { DarkModeProps } from "./DocumentPage";
 
-
-const ToggleDarkMode = ({ handleChange, isChecked }: ToggleProps) => {
+const ToggleDarkMode = ({ handleChange, isDark }: DarkModeProps) => {
   return (
     <div className="toggle-container">
       <input
@@ -12,7 +8,7 @@ const ToggleDarkMode = ({ handleChange, isChecked }: ToggleProps) => {
         id="check"
         className="toggle"
         onChange={handleChange}
-        checked={isChecked}
+        checked={isDark}
       />
       <label htmlFor="check">Dark Mode</label>
     </div>
