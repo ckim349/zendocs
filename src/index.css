@@ -261,3 +261,27 @@ button:focus-visible {
 .hovering-toolbar {
   width: 200px; 
 }
+
+@page {
+
+}
+
+@media print {
+  body {
+    background: none;
+    
+  }
+
+  .document {
+    width: 6.5in;
+    height: 9in;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    align-self: flex-start;
+  }
+
+  .toolbar, .toggle-container, .character-count {
+    display: none;
+  }
+}

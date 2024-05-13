@@ -9,6 +9,12 @@ const BaseTools = ({editor}: {editor: CustomEditor}) => {
   return (
     <>
       <button
+        onClick={() => editor.chain().focus().setPageBreak().run()}
+        className={'format-button'}
+      >
+        pageBreak
+      </button>
+      <button
         onClick={() => editor.chain().focus().toggleBold().run()}
         disabled={
           !editor.can()

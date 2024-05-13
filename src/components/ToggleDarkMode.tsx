@@ -1,4 +1,10 @@
-const ToggleDarkMode = ({ handleChange, isChecked }) => {
+interface ToggleProps {
+  handleChange: () => void;
+  isChecked: boolean;
+}
+
+
+const ToggleDarkMode = ({ handleChange, isChecked }: ToggleProps) => {
   return (
     <div className="toggle-container">
       <input
