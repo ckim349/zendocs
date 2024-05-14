@@ -32,6 +32,7 @@ import SmilieReplacer from './SmilieReplacer'
 import TextEditor from './TextEditor'
 import Toolbar from './Toolbar'
 import ToggleDarkMode from './ToggleDarkMode'
+import Menubar from './Menubar'
 
 export type CustomEditor = Editor | null;
 
@@ -124,9 +125,7 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   return (
     <div className='container' data-theme={isDark ? "dark" : "light"}>
       <div className="document-nav-bar">
-        <div>
-
-        </div>
+        <Menubar />
         <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
         <Toolbar editor={editor} />
       </div>

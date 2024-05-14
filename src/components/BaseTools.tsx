@@ -98,11 +98,11 @@ const BaseTools = ({ editor }: { editor: CustomEditor }) => {
       >
         Remove highlight
       </button>
-      <Menu as='div' className='menu-dropdown'>
+      <Menu as='div' className='menubar-dropdown'>
         <Menu.Button className='format-button text-align-button'>
           Text Align
         </Menu.Button>
-        <Menu.Items className='text-align-dropdown'>
+        <Menu.Items className='dropdown-items text-align-button'>
           <Menu.Item>
             <button
               onClick={() => editor.chain().focus().setTextAlign('left').run()}
@@ -134,11 +134,11 @@ const BaseTools = ({ editor }: { editor: CustomEditor }) => {
           </Menu.Item>
         </Menu.Items>
       </Menu>
-      <Menu as='div' className='menu-dropdown'>
-        <Menu.Button className='format-button text-type-button'>
-          Text Type
+      <Menu as='div' className='menubar-dropdown'>
+        <Menu.Button className='format-button text-style-button'>
+          Text Style
         </Menu.Button>
-        <Menu.Items className='text-type-dropdown'>
+        <Menu.Items className='dropdown-items text-style-button'>
           <Menu.Item>
             <button
               onClick={() => editor.chain().focus().setParagraph().run()}

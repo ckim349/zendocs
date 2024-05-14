@@ -148,7 +148,7 @@ button:focus-visible {
   background-color: var(--foreground-color);
   color: var(--primary-text-color);
   transition: background-color 0.25s ease-in-out;
-  z-index: 999;
+  z-index: 100;
 }
 
 .document {
@@ -166,7 +166,7 @@ button:focus-visible {
 
 .document-nav-bar {
   position: fixed;
-  z-index: 9999;
+  z-index: 101;
   top: 0;
   left: 0;
   width: 100%;
@@ -186,6 +186,7 @@ button:focus-visible {
   position: relative;
   display: block;
   height: 20px;
+  z-index: 102;
 }
 
 .tiptap.ProseMirror {
@@ -255,11 +256,25 @@ button:focus-visible {
   }
 }
 
-.menu-dropdown {
+.menubar-dropdown {
   display: inline-block;
 }
 
-.text-type-button {
+.dropdown-items {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+}
+
+.menubar-dropdown-items {
+  box-shadow: 0px 0px 3px var(--shadow-color);
+  border-radius: 4px;
+  min-width: 200px;
+  background-color: var(--background-color);
+}
+
+.text-style-button {
   width: 110px;
 }
 
@@ -267,24 +282,49 @@ button:focus-visible {
   width: 90px;
 }
 
-.text-type-dropdown {
-  text-align: right;
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  width: 110px;
-}
-
-.text-align-dropdown {
-  text-align: right;
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  width: 90px;
-}
-
 .hovering-toolbar {
   width: 200px;
+}
+
+.menubar {
+  left: 0;
+  display: flex;
+  z-index: 103;
+}
+
+.menubar-dropdown-button {
+  color: var(--primary-text-color);
+  background-color: var(--background-color);
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-size: 15px;
+  border-radius: 3px;
+}
+
+.menubar-dropdown-button:hover {
+  background-color: var(--button-hover-color);
+}
+
+.menubar-dropdown-button:focus {
+  outline: none;
+}
+
+.menubar-button {
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 5px;
+  border: none;
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
+  cursor: pointer;
+  border-radius: 4px;
+  text-align: left;
+}
+
+.menubar-button:hover {
+  background-color: var(--button-hover-color);
 }
 
 .home-nav-bar {
