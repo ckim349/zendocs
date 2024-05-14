@@ -105,7 +105,6 @@ button:focus-visible {
 .format-button {
   font-family: Arial, sans-serif;
   font-size: 15px;
-  font-weight: bold;
   padding: 5px;
   border: 1px solid #ccc;
   background-color: var(--background-color);
@@ -239,7 +238,6 @@ button:focus-visible {
     background-color: #0D0D0D;
     font-size: 0.6rem;
     letter-spacing: 1px;
-    font-weight: bold;
     text-transform: uppercase;
     color: #fff;
     position: absolute;
@@ -290,6 +288,7 @@ button:focus-visible {
   left: 0;
   display: flex;
   z-index: 103;
+  margin-bottom: 10px;
 }
 
 .menubar-dropdown-button {
@@ -313,7 +312,6 @@ button:focus-visible {
 .menubar-button {
   font-family: Arial, sans-serif;
   font-size: 15px;
-  font-weight: bold;
   padding: 5px;
   border: none;
   background-color: var(--background-color);
