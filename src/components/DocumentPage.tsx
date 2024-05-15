@@ -23,6 +23,7 @@ import Bold from '@tiptap/extension-bold'
 import Code from '@tiptap/extension-code'
 import Italic from '@tiptap/extension-italic'
 import Strike from '@tiptap/extension-strike'
+import FontFamily from '@tiptap/extension-font-family'
 import * as Y from 'yjs'
 import { TiptapCollabProvider } from '@hocuspocus/provider'
 import { IndexeddbPersistence } from 'y-indexeddb'
@@ -88,6 +89,9 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
         keepAttributes: true,
       }),
       TextStyle,
+      FontFamily.configure({
+        types: ['textStyle'],
+      }),
       Typography,
       SmilieReplacer,
       Image,

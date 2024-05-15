@@ -127,7 +127,7 @@ button:focus-visible {
 }
 
 .color-input:hover {
-  background-color: #e0e0e0;
+  background-color: var(--button-hover-color);
 }
 
 .color-input:focus,

@@ -75,6 +75,33 @@ const BaseTools = ({ editor }: { editor: CustomEditor }) => {
       >
         1
       </button>
+      <Menu as='div' className='menubar-dropdown'>
+        <Menu.Button className='format-button'>
+          Font
+        </Menu.Button>
+        <Menu.Items className='dropdown-items'>
+          <Menu.Item>
+            <button
+              onClick={() => editor.chain().focus().setFontFamily('Inter').run()}
+              className={editor.isActive('textStyle', { fontFamily: 'Inter' }) ? 'is-active format-button' : 'format-button'}
+            >
+              Inter
+            </button>
+          </Menu.Item>
+          <Menu.Item>
+            <button
+              onClick={() => editor.chain().focus().setFontFamily('Comic Sans MS, Comic Sans').run()}
+              className={
+                editor.isActive('textStyle', { fontFamily: 'Comic Sans MS, Comic Sans' })
+                  ? 'is-active format-button'
+                  : 'format-button'
+              }
+            >
+              Comic Sans
+            </button>
+          </Menu.Item>
+        </Menu.Items>
+      </Menu>
       <input
         type="color"
         onInput={(event: React.ChangeEvent<HTMLInputElement>) => editor.chain().focus().setColor(event.target.value).run()}
