@@ -1,6 +1,6 @@
 import { Extension, textInputRule } from '@tiptap/core'
 
-const SmilieReplacer = Extension.create({
+export const SmilieReplacer = Extension.create({
   name: 'smilieReplacer',
 
   addInputRules() {
