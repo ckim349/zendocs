@@ -127,6 +127,29 @@ const BaseTools = ({ editor }: { editor: CustomEditor }) => {
       </button>
       <Menu as='div' className='menubar-dropdown'>
         <Menu.Button className='format-button text-align-button'>
+          Line Height
+        </Menu.Button>
+        <Menu.Items className='dropdown-items text-align-button'>
+          <Menu.Item>
+            <button
+              onClick={() => editor.chain().focus().setLineHeight(1.5).run()}
+              className={editor.isActive({ lineHeight: 1.5 }) ? 'is-active format-button' : 'format-button'}
+            >
+              1.5
+            </button>
+          </Menu.Item>
+          <Menu.Item>
+            <button
+              onClick={() => editor.chain().focus().setLineHeight(2.0).run()}
+              className={editor.isActive({ lineHeight: 2.0 }) ? 'is-active format-button' : 'format-button'}
+            >
+              2.0
+            </button>
+          </Menu.Item>
+        </Menu.Items>
+      </Menu>
+      <Menu as='div' className='menubar-dropdown'>
+        <Menu.Button className='format-button text-align-button'>
           Text Align
         </Menu.Button>
         <Menu.Items className='dropdown-items text-align-button'>

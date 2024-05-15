@@ -195,7 +195,8 @@ button:focus-visible {
 
 .tiptap {
   p {
-    padding: 0.4em;
+    padding-left: 0.4em;
+    padding-right: 0.4em;
   }
 }
 

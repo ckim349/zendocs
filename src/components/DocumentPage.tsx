@@ -28,7 +28,7 @@ import * as Y from 'yjs'
 import { TiptapCollabProvider } from '@hocuspocus/provider'
 import { IndexeddbPersistence } from 'y-indexeddb'
 
-import Drawing from "./DrawingExtension"
+import { LineHeight } from './LineHeight'
 import SmilieReplacer from './SmilieReplacer'
 import TextEditor from './TextEditor'
 import Toolbar from './Toolbar'
@@ -96,7 +96,6 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
       SmilieReplacer,
       Image,
       Dropcursor,
-      Drawing,
       CharacterCount,
       Gapcursor,
       Underline,
@@ -118,6 +117,7 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
       }),
       CodeBlock,
       ListItem,
+      LineHeight,
     ],
     content: ``,
   })
