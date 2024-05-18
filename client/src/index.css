@@ -409,7 +409,7 @@ button:focus-visible {
     align-self: flex-start;
   }
 
-  .toolbar,
+  .document-nav-bar,
   .toggle-container,
   .character-count {
     display: none;

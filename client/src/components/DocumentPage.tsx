@@ -28,12 +28,13 @@ import * as Y from 'yjs'
 import { TiptapCollabProvider } from '@hocuspocus/provider'
 import { IndexeddbPersistence } from 'y-indexeddb'
 
-import { LineHeight } from './tiptap_extensions/LineHeight'
-import { SmilieReplacer } from './tiptap_extensions/SmilieReplacer'
+import { LineHeight } from '../tiptap_extensions/LineHeight'
+import { SmilieReplacer } from '../tiptap_extensions/SmilieReplacer'
 import TextEditor from './TextEditor'
 import Toolbar from './Toolbar'
 import ToggleDarkMode from './ToggleDarkMode'
 import Menubar from './Menubar'
+import { useEffect, useState } from 'react'
 
 export type CustomEditor = Editor | null;
 
@@ -43,6 +44,19 @@ export interface DarkModeProps {
 }
 
 const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
+  const [backendData, setBackendData] = useState<{ users?: string[] }>({});
+
+  useEffect(() => {
+    fetch("/api")
+      .then((response) => response.json())
+      .then((data) => {
+        setBackendData(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
   const doc = new Y.Doc();
 
   // Set up IndexedDB for local storage of the Y document
@@ -67,7 +81,6 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
       }
     }
   })
-
 
   const editor = useEditor({
     extensions: [
@@ -135,6 +148,13 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
       </div>
       <div>
         <div className='document'>
+          {!backendData || !backendData.users ? (
+            <p>loading...</p>
+          ) : (
+            backendData.users.map((user, i) => (
+              <p key={i}>{user}</p>
+            ))
+          )}
           <EditorContent editor={editor} />
           <TextEditor editor={editor} />
         </div>
