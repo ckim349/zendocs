@@ -27,6 +27,7 @@ import FontFamily from '@tiptap/extension-font-family'
 import * as Y from 'yjs'
 import { TiptapCollabProvider } from '@hocuspocus/provider'
 import { IndexeddbPersistence } from 'y-indexeddb'
+import { fromUint8Array } from 'js-base64'
 
 import { LineHeight } from '../tiptap_extensions/LineHeight'
 import { SmilieReplacer } from '../tiptap_extensions/SmilieReplacer'
@@ -138,6 +139,17 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   if (!editor) {
     return null;
   }
+
+  doc.on('update', update => {
+    const base64Encoded = fromUint8Array(update)
+    fetch('/api', {
+      method: 'POST',
+      body: base64Encoded,
+    })
+      .then(response => response.json())
+      .then(data => console.log(data))
+      .catch(error => console.error('Error:', error));
+  })
 
   return (
     <div className='container' data-theme={isDark ? "dark" : "light"}>
