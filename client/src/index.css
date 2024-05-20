@@ -401,7 +401,7 @@ button:focus-visible {
   }
 
   .document {
-    width: 6.5in;
+    min-width: 826px;
     height: 9in;
     margin: 0;
     padding: 0;

@@ -2,6 +2,11 @@ import { useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom"
 import { DarkModeProps } from "./DocumentPage";
 import ToggleDarkMode from "./ToggleDarkMode";
+import { v4 as uuidv4 } from 'uuid';
+import * as Y from 'yjs'
+import { TiptapCollabProvider } from '@hocuspocus/provider'
+import { IndexeddbPersistence } from 'y-indexeddb'
+import { fromUint8Array } from "js-base64";
 
 const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
   // once document object is created change string to thingy
@@ -24,6 +29,35 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
     }
 
     const value = inputRef.current!.value;
+    const documentId = uuidv4();
+
+    // set up yjs doc with local storage and tiptapcollabprovider
+    const doc = new Y.Doc();
+    new IndexeddbPersistence('example-document', doc);
+    const provider = new TiptapCollabProvider({
+      name: "document.name", // Unique document identifier for syncing. This is your document name.
+      appId: '0k3q8d95', // Your Cloud Dashboard AppID or `baseURL` for on-premises
+      token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MTQ4NzE3NzQsIm5iZiI6MTcxNDg3MTc3NCwiZXhwIjoxNzE0OTU4MTc0LCJpc3MiOiJodHRwczovL2Nsb3VkLnRpcHRhcC5kZXYiLCJhdWQiOiIwazNxOGQ5NSJ9.pmTtqOAPJMN5Er3OpmEe_zsnMfJ1-USOaaCGThzxME4', // for testing
+      document: doc,
+    })
+
+    const content = Y.encodeStateVector(doc);
+    const base64Encoded = fromUint8Array(content)
+
+    fetch('http://localhost:5000/document/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "id": documentId,
+        "title": value,
+        "content": base64Encoded
+      }),
+    })
+      .then(response => response.json())
+      .then(data => console.log(data))
+      .catch(error => console.error('Error:', error));
 
     setDocuments(prev => {
       return [...prev, value]

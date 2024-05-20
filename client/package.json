@@ -53,6 +53,7 @@
     "react-router-dom": "^6.23.1",
     "tiptap": "^1.32.2",
     "use-local-storage": "^3.0.0",
+    "uuid": "^9.0.1",
     "y-indexeddb": "^9.0.12",
     "y-prosemirror": "^1.2.3",
     "y-webrtc": "^10.3.0",
@@ -62,6 +63,7 @@
   "devDependencies": {
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
+    "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "@vitejs/plugin-react": "^4.2.1",
