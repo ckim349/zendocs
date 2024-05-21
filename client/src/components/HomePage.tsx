@@ -35,14 +35,15 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
     const doc = new Y.Doc();
     new IndexeddbPersistence('example-document', doc);
     const provider = new TiptapCollabProvider({
-      name: "document.name", // Unique document identifier for syncing. This is your document name.
+      name: "documentname", // Unique document identifier for syncing. This is your document name.
       appId: '0k3q8d95', // Your Cloud Dashboard AppID or `baseURL` for on-premises
       token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MTQ4NzE3NzQsIm5iZiI6MTcxNDg3MTc3NCwiZXhwIjoxNzE0OTU4MTc0LCJpc3MiOiJodHRwczovL2Nsb3VkLnRpcHRhcC5kZXYiLCJhdWQiOiIwazNxOGQ5NSJ9.pmTtqOAPJMN5Er3OpmEe_zsnMfJ1-USOaaCGThzxME4', // for testing
       document: doc,
     })
 
-    const content = Y.encodeStateVector(doc);
-    const base64Encoded = fromUint8Array(content)
+    const content = fromUint8Array(Y.encodeStateAsUpdate(doc));
+    // console.log('state vector: ', Y.encodeStateAsUpdate(doc));
+    // console.log('content: ', fromUint8Array(Y.encodeStateAsUpdate(doc)));
 
     fetch('http://localhost:5000/document/create', {
       method: 'POST',
@@ -50,9 +51,9 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        "id": documentId,
+        "documentId": documentId,
         "title": value,
-        "content": base64Encoded
+        "content": content
       }),
     })
       .then(response => response.json())

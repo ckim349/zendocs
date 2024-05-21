@@ -24,7 +24,9 @@ import Code from '@tiptap/extension-code'
 import Italic from '@tiptap/extension-italic'
 import Strike from '@tiptap/extension-strike'
 import FontFamily from '@tiptap/extension-font-family'
-import { fromUint8Array } from 'js-base64'
+import { fromUint8Array, toUint8Array } from 'js-base64'
+import { TiptapCollabProvider } from '@hocuspocus/provider'
+import { IndexeddbPersistence } from 'y-indexeddb'
 
 import { LineHeight } from '../tiptap_extensions/LineHeight'
 import { SmilieReplacer } from '../tiptap_extensions/SmilieReplacer'
@@ -34,8 +36,7 @@ import ToggleDarkMode from './ToggleDarkMode'
 import Menubar from './Menubar'
 import { useEffect, useState } from 'react'
 import * as Y from 'yjs'
-import { TiptapCollabProvider } from '@hocuspocus/provider'
-import { IndexeddbPersistence } from 'y-indexeddb'
+
 export type CustomEditor = Editor | null;
 
 export interface DarkModeProps {
@@ -44,40 +45,41 @@ export interface DarkModeProps {
 }
 
 const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
-  const [ydoc, setYdoc] = useState({});
+  const [docId, setDocId] = useState();
+  const [docTitle, setDocTitle] = useState();
+
+  // set up yjs doc with local storage and tiptapcollabprovider
+  const doc = new Y.Doc();
+  new IndexeddbPersistence('example-document', doc);
+  const provider = new TiptapCollabProvider({
+    name: "documentname", // Unique document identifier for syncing. This is your document name.
+    appId: '0k3q8d95', // Your Cloud Dashboard AppID or `baseURL` for on-premises
+    token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MTQ4NzE3NzQsIm5iZiI6MTcxNDg3MTc3NCwiZXhwIjoxNzE0OTU4MTc0LCJpc3MiOiJodHRwczovL2Nsb3VkLnRpcHRhcC5kZXYiLCJhdWQiOiIwazNxOGQ5NSJ9.pmTtqOAPJMN5Er3OpmEe_zsnMfJ1-USOaaCGThzxME4', // for testing
+    document: doc,
+  })
 
   useEffect(() => {
-    fetch("/api")
+    const documentIdToLoad = 'b34f778d-2f40-41a0-8cb4-7502999ca4b7';
+
+    fetch(`http://localhost:5000/document/load/${documentIdToLoad}`, {
+      method: "GET"
+    })
       .then((response) => response.json())
       .then((data) => {
-        setYdoc(data);
+        const update = toUint8Array(data.docToFind.content);
+        Y.applyUpdate(doc, update);
+        console.log(data.docToFind.documentId);
+        setDocId(data.docToFind.documentId);
+        setDocTitle(data.docToFind.title);
+        // CURRENTLY NOT WORKING 
+        console.log(data.docToFind.documentId);
+        console.log(data.docToFind.title);
+
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
       });
   }, []);
-
-  // const doc = new Y.Doc();
-  // new IndexeddbPersistence('example-document', doc);
-  // const provider = new TiptapCollabProvider({
-  //   name: "document.name", // Unique document identifier for syncing. This is your document name.
-  //   appId: '0k3q8d95', // Your Cloud Dashboard AppID or `baseURL` for on-premises
-  //   token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MTQ4NzE3NzQsIm5iZiI6MTcxNDg3MTc3NCwiZXhwIjoxNzE0OTU4MTc0LCJpc3MiOiJodHRwczovL2Nsb3VkLnRpcHRhcC5kZXYiLCJhdWQiOiIwazNxOGQ5NSJ9.pmTtqOAPJMN5Er3OpmEe_zsnMfJ1-USOaaCGThzxME4', // for testing
-  //   document: doc,
-
-  //   onSynced() {
-
-  //     if (!doc.getMap('config').get('initialContentLoaded') && editor) {
-  //       doc.getMap('config').set('initialContentLoaded', true);
-
-  //       editor.commands.setContent(`
-  //       <p>
-  //         goon be gooning
-  //       </p>
-  //       `)
-  //     }
-  //   }
-  // })
 
   const editor = useEditor({
     extensions: [
@@ -116,8 +118,7 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
         types: ['heading', 'paragraph'],
       }),
       Collaboration.configure({
-        document: ydoc
-        // document: doc
+        document: doc
       }),
       // CollaborationCursor.configure({
       //   provider,
@@ -137,22 +138,25 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     return null;
   }
 
-  // // TODO Update only after four seconds of NO updates
-  // doc.on('update', update => {
-  //   const base64Encoded = fromUint8Array(update)
-  //   fetch('http://localhost:5000/document/update', {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json'
-  //     },
-  //     body: JSON.stringify({
-  //       "content": base64Encoded
-  //     }),
-  //   })
-  //     .then(response => response.json())
-  //     .then(data => console.log(data))
-  //     .catch(error => console.error('Error:', error));
-  // })
+  // TODO Update only after four seconds of NO updates
+  doc.on('update', update => {
+    // console.log(update)
+    const base64Encoded = fromUint8Array(update)
+    fetch('http://localhost:5000/document/update', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "documentId": docId,
+        "title": docTitle,
+        "content": base64Encoded
+      }),
+    })
+      .then(response => response.json())
+      .then(data => console.log(data))
+      .catch(error => console.error('Error:', error));
+  })
 
   return (
     <div className='container' data-theme={isDark ? "dark" : "light"}>
