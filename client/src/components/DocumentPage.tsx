@@ -148,7 +148,7 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        "documentId": docId,
+        "documentId": 'b34f778d-2f40-41a0-8cb4-7502999ca4b7',
         "title": docTitle,
         "content": base64Encoded
       }),
