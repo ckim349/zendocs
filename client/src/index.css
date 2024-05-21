@@ -398,6 +398,12 @@ button:focus-visible {
 @media print {
   body {
     background: none;
+    color: var(--primary-text-color);
+  }
+
+  /* Reset text color for print */
+  [data-theme="dark"] {
+    --primary-text-color: #000000;
   }
 
   .document {
