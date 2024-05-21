@@ -152,10 +152,7 @@ button:focus-visible {
 
 .document {
   margin-top: 50px;
-  width: 90vw;
-  /* Set width to 90% of the viewport width */
-  max-width: 800px;
-  /* Set maximum width to 800px */
+  width: 755px;
   padding-bottom: var(--document-height);
   background-color: var(--background-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -197,6 +194,13 @@ button:focus-visible {
   p {
     padding-left: 0.4em;
     padding-right: 0.4em;
+  }
+
+  /* Edits the block surrounding the code */
+  pre {
+    background-color: var(--foreground-color);
+    border-radius: 5px;
+    padding: 12px 16px;
   }
 }
 
@@ -407,7 +411,7 @@ button:focus-visible {
   }
 
   .document {
-    min-width: 826px;
+    min-width: 755px;
     height: 9in;
     margin: 0;
     padding: 0;
