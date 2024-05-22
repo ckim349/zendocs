@@ -16,7 +16,7 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<HomePage handleChange={handleChange} isDark={isDark} />} />
-        <Route path="/document" element={<DocumentPage handleChange={handleChange} isDark={isDark} />} />
+        <Route path="/document/:id" element={<DocumentPage handleChange={handleChange} isDark={isDark} />} />
         <Route path="*" element={<ErrorPage />} />
       </Routes>
     </>

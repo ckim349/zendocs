@@ -84,3 +84,17 @@ exports.document_load_get = [
     }
   }),
 ];
+
+// Handle document list on GET.
+exports.document_list_get = [
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log('errors :c');
+      return;
+    } else {
+      const documents = await Document.find().sort({ title: 1 }).exec();
+      res.send({ documents });
+    }
+  }),
+];

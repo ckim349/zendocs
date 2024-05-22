@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom"
 import { DarkModeProps } from "./DocumentPage";
 import ToggleDarkMode from "./ToggleDarkMode";
@@ -8,18 +8,41 @@ import { TiptapCollabProvider } from '@hocuspocus/provider'
 import { IndexeddbPersistence } from 'y-indexeddb'
 import { fromUint8Array } from "js-base64";
 
+interface DatabaseDocument {
+  documentId: String,
+  title: String,
+  content: String
+}
+
 const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
   // once document object is created change string to thingy
-  const [documents, setDocuments] = useState<string[]>([]);
+  const [documents, setDocuments] = useState<DatabaseDocument[]>([]);
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const filteredDocuments = useMemo(() => {
-    return documents.filter(document => {
-      // once document object is created change this to document.title.tolowercase
-      return document.toLowerCase().includes(query.toLowerCase());
+  // Get list of documents on render
+  useEffect(() => {
+    fetch('http://localhost:5000/document_list', {
+      method: 'GET'
     })
-  }, [documents, query])
+      .then((response) => response.json())
+      .then((data) => {
+        setDocuments(data.documents);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, [])
+
+  const filteredDocuments = useMemo(() => {
+    if (Array.isArray(documents)) {
+      return documents.filter(document => {
+        return document.title.toLowerCase().includes(query.toLowerCase());
+      });
+    } else {
+      return [];
+    }
+  }, [documents, query]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +84,12 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
       .catch(error => console.error('Error:', error));
 
     setDocuments(prev => {
-      return [...prev, value]
+      const prevArray = Array.isArray(prev) ? prev : [];
+      return [...prevArray, {
+        documentId: documentId,
+        title: value,
+        content: content
+      }]
     });
 
     inputRef.current!.value = "";
@@ -74,17 +102,20 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
         <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
       </div>
 
-      <Link to="/document"><div className="home-document-card">New Document</div></Link>
+      <Link to={`/document/${uuidv4()}`}><div className="home-document-card">New Document</div></Link>
       <form onSubmit={onSubmit}>
         New document: <input ref={inputRef} type="text" />
         <button type="submit">Add document</button>
       </form>
       <div className="home-document-grid">
         {filteredDocuments.map((document, index) => (
-          <div className="home-document-card" key={index}>
-            <div className="home-document-card-content">document content</div>
-            <div className="home-document-card-title">{document}</div>
-          </div>
+          <Link to={`/document/${document.documentId}`}>
+            <div className="home-document-card" key={index}>
+              <div className="home-document-card-content">document content</div>
+              <div className="home-document-card-title">{document.title}</div>
+            </div>
+          </Link>
+
         ))}
       </div>
     </div>
