@@ -11,7 +11,7 @@ import Underline from '@tiptap/extension-underline'
 import Highlight from '@tiptap/extension-highlight'
 import TextAlign from '@tiptap/extension-text-align'
 import Collaboration from '@tiptap/extension-collaboration'
-// import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
+import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
 import CodeBlock from '@tiptap/extension-code-block'
 import BulletList from '@tiptap/extension-bullet-list'
 import OrderedList from '@tiptap/extension-ordered-list'
@@ -24,11 +24,12 @@ import Code from '@tiptap/extension-code'
 import Italic from '@tiptap/extension-italic'
 import Strike from '@tiptap/extension-strike'
 import FontFamily from '@tiptap/extension-font-family'
+import Placeholder from '@tiptap/extension-placeholder'
 import { fromUint8Array, toUint8Array } from 'js-base64'
-import { TiptapCollabProvider } from '@hocuspocus/provider'
+import { TiptapCollabProvider, TiptapCollabProviderWebsocket } from '@hocuspocus/provider'
 import { IndexeddbPersistence } from 'y-indexeddb'
 import { debounce } from 'lodash';
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import * as Y from 'yjs'
 
 import { LineHeight } from '../tiptap_extensions/LineHeight'
@@ -50,22 +51,30 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   // const [docId, setDocId] = useState();
   const { id: docId } = useParams();
   const [docTitle, setDocTitle] = useState();
+  // const [saved, setSaved] = useState(true);
 
-  const doc = new Y.Doc();
-  new IndexeddbPersistence('example-document', doc);
+  if (!docId) {
+    return null;
+  }
 
-  useEffect(() => {
-    // set up yjs doc with local storage and tiptapcollabprovider 
+  const doc = useMemo(() => new Y.Doc(), [docId])
+  const indexedDbProvider = new IndexeddbPersistence(docId, doc);
+
+  const remoteProvider = useMemo(() => {
     const provider = new TiptapCollabProvider({
-      name: "documentname", // Unique document identifier for syncing. This is your document name.
+      name: docId, // Unique document identifier for syncing. This is your document name.
       appId: '0k3q8d95', // Your Cloud Dashboard AppID or `baseURL` for on-premises
       token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MTQ4NzE3NzQsIm5iZiI6MTcxNDg3MTc3NCwiZXhwIjoxNzE0OTU4MTc0LCJpc3MiOiJodHRwczovL2Nsb3VkLnRpcHRhcC5kZXYiLCJhdWQiOiIwazNxOGQ5NSJ9.pmTtqOAPJMN5Er3OpmEe_zsnMfJ1-USOaaCGThzxME4', // for testing
       document: doc,
     })
+    return provider;
+  }, [doc]);
 
+  useEffect(() => {
     // Udpate database document 4 seconds after last update
     doc.on('update', update => {
       const base64Encoded = fromUint8Array(update)
+      // setSaved(false);
       debounceUpdate(base64Encoded, docId, docTitle);
     })
     const debounceUpdate = debounce(async (base64Encoded, docId, docTitle) => {
@@ -85,6 +94,8 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
         console.log(data);
       } catch (error) {
         console.error('Error:', error);
+      } finally {
+        // setSaved(true);
       }
     }, 4000);
 
@@ -101,7 +112,7 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
       .catch((error) => {
         console.error('Error fetching data:', error);
       });
-  }, []);
+  }, [doc]);
 
   const editor = useEditor({
     extensions: [
@@ -140,21 +151,44 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
         types: ['heading', 'paragraph'],
       }),
       Collaboration.configure({
-        document: doc
+        document: remoteProvider.document
       }),
-      // CollaborationCursor.configure({
-      //   provider,
-      //   user: {
-      //     name: 'Goon Goon',
-      //     color: '#f783ac',
-      //   },
-      // }),
+      CollaborationCursor.configure({
+        provider: remoteProvider
+        //   user: {
+        //     name: 'Goon Goon',
+        //     color: '#f783ac',
+        //   },
+      }),
       CodeBlock,
       ListItem,
       LineHeight,
     ],
     content: ``,
   })
+
+  // const titleEditor = useEditor({
+  //   extensions: [
+  //     Document.extend({
+  //       content: "heading"
+  //     }),
+  //     Text,
+  //     Heading.configure({
+  //       levels: [1]
+  //     }),
+  //     Placeholder.configure({
+  //       placeholder: "Enter a title"
+  //     }),
+  //     Collaboration.configure({
+  //       document: remoteProvider.document,
+  //       field: "title"
+  //     }),
+  //     CollaborationCursor.configure({
+  //       provider: remoteProvider,
+  //       // user: userCursor
+  //     })
+  //   ],
+  // });
 
   if (!editor) {
     return null;

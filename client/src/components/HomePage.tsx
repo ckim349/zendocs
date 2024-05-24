@@ -4,14 +4,14 @@ import { DarkModeProps } from "./DocumentPage";
 import ToggleDarkMode from "./ToggleDarkMode";
 import { v4 as uuidv4 } from 'uuid';
 import * as Y from 'yjs'
-import { TiptapCollabProvider } from '@hocuspocus/provider'
-import { IndexeddbPersistence } from 'y-indexeddb'
 import { fromUint8Array } from "js-base64";
 
 interface DatabaseDocument {
-  documentId: String,
-  title: String,
-  content: String
+  documentId: string,
+  title: string,
+  content: string,
+  createdDate: string,
+  lastUpdatedDate: string
 }
 
 const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
@@ -29,6 +29,7 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
       .then((response) => response.json())
       .then((data) => {
         setDocuments(data.documents);
+        console.log(data.documents);
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
@@ -45,16 +46,8 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
     }
   }, [documents, query]);
 
-  const createDocument = (id: String, name: String) => {
-    // set up yjs doc with local storage and tiptapcollabprovider
+  const createDocument = (id: string, name: string) => {
     const doc = new Y.Doc();
-    new IndexeddbPersistence('example-document', doc);
-    const provider = new TiptapCollabProvider({
-      name: "documentname", // Unique document identifier for syncing. This is your document name.
-      appId: '0k3q8d95', // Your Cloud Dashboard AppID or `baseURL` for on-premises
-      token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MTQ4NzE3NzQsIm5iZiI6MTcxNDg3MTc3NCwiZXhwIjoxNzE0OTU4MTc0LCJpc3MiOiJodHRwczovL2Nsb3VkLnRpcHRhcC5kZXYiLCJhdWQiOiIwazNxOGQ5NSJ9.pmTtqOAPJMN5Er3OpmEe_zsnMfJ1-USOaaCGThzxME4', // for testing
-      document: doc,
-    })
 
     const content = fromUint8Array(Y.encodeStateAsUpdate(doc));
 
@@ -87,13 +80,16 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
     const documentId = uuidv4();
 
     const content = createDocument(documentId, value);
+    const currentDate = new Date().toISOString();
 
     setDocuments(prev => {
       const prevArray = Array.isArray(prev) ? prev : [];
       return [...prevArray, {
         documentId: documentId,
         title: value,
-        content: content
+        content: content,
+        createdDate: currentDate,
+        lastUpdatedDate: currentDate
       }]
     });
 

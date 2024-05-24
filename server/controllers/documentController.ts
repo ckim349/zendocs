@@ -16,11 +16,15 @@ exports.document_create_post = [
       const documentId = req.body.documentId;
       const title = req.body.title;
       const content = req.body.content;
+      const currentDate = new Date().toISOString();
+
 
       const document = new Document({
         documentId: documentId,
         title: title,
-        content: content
+        content: content,
+        createdDate: currentDate,
+        lastUpdatedDate: currentDate
       })
 
       await document.save();
@@ -54,6 +58,7 @@ exports.document_update_post = [
       Y.applyUpdate(doc, update);
 
       docToUpdate.content = fromUint8Array(Y.encodeStateAsUpdate(doc))
+      docToUpdate.lastUpdatedDate = new Date().toISOString();
       await docToUpdate.save();
 
       res.json({ success: true });
@@ -93,7 +98,7 @@ exports.document_list_get = [
       console.log('errors :c');
       return;
     } else {
-      const documents = await Document.find().sort({ title: 1 }).exec();
+      const documents = await Document.find().sort({ lastUpdatedDate: -1 }).exec();
       res.send({ documents });
     }
   }),
