@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { DarkModeProps } from "./DocumentPage";
 import ToggleDarkMode from "./ToggleDarkMode";
 import { v4 as uuidv4 } from 'uuid';
@@ -19,6 +19,7 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
   const [documents, setDocuments] = useState<DatabaseDocument[]>([]);
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   // Get list of documents on render
   useEffect(() => {
@@ -44,16 +45,7 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
     }
   }, [documents, query]);
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (inputRef.current?.value == "") {
-      return;
-    }
-
-    const value = inputRef.current!.value;
-    const documentId = uuidv4();
-
+  const createDocument = (id: String, name: String) => {
     // set up yjs doc with local storage and tiptapcollabprovider
     const doc = new Y.Doc();
     new IndexeddbPersistence('example-document', doc);
@@ -65,8 +57,6 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
     })
 
     const content = fromUint8Array(Y.encodeStateAsUpdate(doc));
-    // console.log('state vector: ', Y.encodeStateAsUpdate(doc));
-    // console.log('content: ', fromUint8Array(Y.encodeStateAsUpdate(doc)));
 
     fetch('http://localhost:5000/document/create', {
       method: 'POST',
@@ -74,14 +64,29 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        "documentId": documentId,
-        "title": value,
+        "documentId": id,
+        "title": name,
         "content": content
       }),
     })
       .then(response => response.json())
       .then(data => console.log(data))
       .catch(error => console.error('Error:', error));
+
+    return content;
+  }
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (inputRef.current?.value == "") {
+      return;
+    }
+
+    const value = inputRef.current!.value;
+    const documentId = uuidv4();
+
+    const content = createDocument(documentId, value);
 
     setDocuments(prev => {
       const prevArray = Array.isArray(prev) ? prev : [];
@@ -95,6 +100,12 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
     inputRef.current!.value = "";
   }
 
+  const handleClick = () => {
+    const documentId = uuidv4();
+    createDocument(documentId, "Untitled")
+    navigate(`/document/${documentId}`)
+  }
+
   return (
     <div className='container' data-theme={isDark ? "dark" : "light"}>
       <div className="home-nav-bar">
@@ -102,7 +113,10 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
         <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
       </div>
 
-      <Link to={`/document/${uuidv4()}`}><div className="home-document-card">New Document</div></Link>
+      <div className="home-document-card" onClick={handleClick}>
+        New Document
+      </div>
+
       <form onSubmit={onSubmit}>
         New document: <input ref={inputRef} type="text" />
         <button type="submit">Add document</button>
