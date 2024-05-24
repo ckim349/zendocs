@@ -109,16 +109,15 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
       </form>
       <div className="home-document-grid">
         {filteredDocuments.map((document, index) => (
-          <Link to={`/document/${document.documentId}`}>
-            <div className="home-document-card" key={index}>
+          <div className="home-document-card" key={index}>
+            <Link to={`/document/${document.documentId}`}>
               <div className="home-document-card-content">document content</div>
               <div className="home-document-card-title">{document.title}</div>
-            </div>
-          </Link>
-
+            </Link>
+          </div>
         ))}
       </div>
-    </div>
+    </div >
   )
 }
 

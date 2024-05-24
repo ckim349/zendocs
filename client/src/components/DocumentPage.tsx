@@ -51,17 +51,44 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   const { id: docId } = useParams();
   const [docTitle, setDocTitle] = useState();
 
-  // set up yjs doc with local storage and tiptapcollabprovider
   const doc = new Y.Doc();
   new IndexeddbPersistence('example-document', doc);
-  const provider = new TiptapCollabProvider({
-    name: "documentname", // Unique document identifier for syncing. This is your document name.
-    appId: '0k3q8d95', // Your Cloud Dashboard AppID or `baseURL` for on-premises
-    token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MTQ4NzE3NzQsIm5iZiI6MTcxNDg3MTc3NCwiZXhwIjoxNzE0OTU4MTc0LCJpc3MiOiJodHRwczovL2Nsb3VkLnRpcHRhcC5kZXYiLCJhdWQiOiIwazNxOGQ5NSJ9.pmTtqOAPJMN5Er3OpmEe_zsnMfJ1-USOaaCGThzxME4', // for testing
-    document: doc,
-  })
 
   useEffect(() => {
+    // set up yjs doc with local storage and tiptapcollabprovider 
+    const provider = new TiptapCollabProvider({
+      name: "documentname", // Unique document identifier for syncing. This is your document name.
+      appId: '0k3q8d95', // Your Cloud Dashboard AppID or `baseURL` for on-premises
+      token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MTQ4NzE3NzQsIm5iZiI6MTcxNDg3MTc3NCwiZXhwIjoxNzE0OTU4MTc0LCJpc3MiOiJodHRwczovL2Nsb3VkLnRpcHRhcC5kZXYiLCJhdWQiOiIwazNxOGQ5NSJ9.pmTtqOAPJMN5Er3OpmEe_zsnMfJ1-USOaaCGThzxME4', // for testing
+      document: doc,
+    })
+
+    // Udpate database document 4 seconds after last update
+    doc.on('update', update => {
+      const base64Encoded = fromUint8Array(update)
+      debounceUpdate(base64Encoded, docId, docTitle);
+    })
+    const debounceUpdate = debounce(async (base64Encoded, docId, docTitle) => {
+      try {
+        const response = await fetch('http://localhost:5000/document/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            documentId: docId,
+            title: docTitle,
+            content: base64Encoded
+          }),
+        });
+        const data = await response.json();
+        console.log(data);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }, 4000);
+
+    // Load document from database
     fetch(`http://localhost:5000/document/load/${docId}`, {
       method: "GET"
     })
@@ -132,31 +159,6 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   if (!editor) {
     return null;
   }
-
-  // Updates database document after 4 seconds of no updates
-  doc.on('update', update => {
-    const base64Encoded = fromUint8Array(update)
-    debounceUpdate(base64Encoded, docId, docTitle);
-  })
-  const debounceUpdate = debounce(async (base64Encoded, docId, docTitle) => {
-    try {
-      const response = await fetch('http://localhost:5000/document/update', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          documentId: docId,
-          title: docTitle,
-          content: base64Encoded
-        }),
-      });
-      const data = await response.json();
-      console.log(data);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  }, 4000);
 
   return (
     <div className='container' data-theme={isDark ? "dark" : "light"}>
