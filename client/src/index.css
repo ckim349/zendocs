@@ -158,6 +158,10 @@ button:focus-visible {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
   cursor: text;
+
+  .tiptap.ProseMirror {
+    padding-bottom: var(--document-height);
+  }
 }
 
 .document-nav-bar {
@@ -166,28 +170,43 @@ button:focus-visible {
   top: 0;
   left: 0;
   width: 100%;
+  padding-left: 10px;
+  padding-top: 8px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start;
+  /* align-items: center; */
   background-color: var(--background-color);
   box-sizing: border-box;
   position: relative;
-  padding: 8px;
-  height: 100px;
+  /* padding: 8px; */
+  height: 120px;
 }
 
 .toolbar {
   padding-top: 5px;
+  margin: 0 0 0 3px;
   position: relative;
   display: block;
   height: 20px;
   z-index: 102;
 }
 
-.tiptap.ProseMirror {
-  /* outline: none; */
-  padding-bottom: var(--document-height);
+.document-title {
+  border-radius: 4px;
+
+  h2 {
+    padding: 0px;
+    margin: 0 0 0 5px;
+  }
+
+  .tiptap.ProseMirror {
+    max-width: 50%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: left;
+  }
 }
 
 .tiptap {
@@ -293,7 +312,7 @@ button:focus-visible {
   left: 0;
   display: flex;
   z-index: 103;
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
 }
 
 .menubar-dropdown-button {

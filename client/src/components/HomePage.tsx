@@ -5,6 +5,7 @@ import ToggleDarkMode from "./ToggleDarkMode";
 import { v4 as uuidv4 } from 'uuid';
 import * as Y from 'yjs'
 import { fromUint8Array } from "js-base64";
+import { openDB } from "idb";
 
 interface DatabaseDocument {
   documentId: string,
@@ -39,7 +40,10 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
   const filteredDocuments = useMemo(() => {
     if (Array.isArray(documents)) {
       return documents.filter(document => {
-        return document.title.toLowerCase().includes(query.toLowerCase());
+        // TODO occasional error where document titles are becoming null on update
+        if (document.title !== null) {
+          return document.title.toLowerCase().includes(query.toLowerCase());
+        }
       });
     } else {
       return [];

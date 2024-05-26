@@ -18,7 +18,6 @@ exports.document_create_post = [
       const content = req.body.content;
       const currentDate = new Date().toISOString();
 
-
       const document = new Document({
         documentId: documentId,
         title: title,
@@ -41,23 +40,29 @@ exports.document_update_post = [
       console.log('errors :c')
       return;
     } else {
-      const base64Update = req.body.content;
-      const update = toUint8Array(base64Update)
-
       // Finds the document we want to update and then applies and saves the update
       const docToUpdate = await Document.findOne({ documentId: req.body.documentId }).exec();
       if (!docToUpdate) {
         return res.status(404).json({ error: 'Document not found' });
       }
 
-      // Only applies update of content from database doc if content not null
       const doc = new Y.Doc();
-      if (docToUpdate.content !== "AA==") {
-        Y.applyUpdate(doc, toUint8Array(docToUpdate.content));
-      }
-      Y.applyUpdate(doc, update);
 
-      docToUpdate.content = fromUint8Array(Y.encodeStateAsUpdate(doc))
+      // Only applies update of content from database doc if content not null
+      if (req.body.content !== null) {
+        const base64Update = req.body.content;
+        const update = toUint8Array(base64Update)
+        if (docToUpdate.content !== "AA==") {
+          Y.applyUpdate(doc, toUint8Array(docToUpdate.content));
+        }
+        Y.applyUpdate(doc, update);
+        docToUpdate.content = fromUint8Array(Y.encodeStateAsUpdate(doc))
+      }
+
+      if (req.body.title !== "" && req.body.title !== null) {
+        docToUpdate.title = req.body.title;
+      }
+
       docToUpdate.lastUpdatedDate = new Date().toISOString();
       await docToUpdate.save();
 

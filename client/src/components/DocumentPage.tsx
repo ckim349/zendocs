@@ -26,7 +26,7 @@ import Strike from '@tiptap/extension-strike'
 import FontFamily from '@tiptap/extension-font-family'
 import Placeholder from '@tiptap/extension-placeholder'
 import { fromUint8Array, toUint8Array } from 'js-base64'
-import { TiptapCollabProvider, TiptapCollabProviderWebsocket } from '@hocuspocus/provider'
+import { TiptapCollabProvider } from '@hocuspocus/provider'
 import { IndexeddbPersistence } from 'y-indexeddb'
 import { debounce } from 'lodash';
 import { useEffect, useMemo, useState } from 'react'
@@ -50,7 +50,7 @@ export interface DarkModeProps {
 const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   // const [docId, setDocId] = useState();
   const { id: docId } = useParams();
-  const [docTitle, setDocTitle] = useState();
+  const [docTitle, setDocTitle] = useState<string>("");
   // const [saved, setSaved] = useState(true);
 
   if (!docId) {
@@ -63,8 +63,8 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   const remoteProvider = useMemo(() => {
     const provider = new TiptapCollabProvider({
       name: docId, // Unique document identifier for syncing. This is your document name.
-      appId: '0k3q8d95', // Your Cloud Dashboard AppID or `baseURL` for on-premises
-      token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MTQ4NzE3NzQsIm5iZiI6MTcxNDg3MTc3NCwiZXhwIjoxNzE0OTU4MTc0LCJpc3MiOiJodHRwczovL2Nsb3VkLnRpcHRhcC5kZXYiLCJhdWQiOiIwazNxOGQ5NSJ9.pmTtqOAPJMN5Er3OpmEe_zsnMfJ1-USOaaCGThzxME4', // for testing
+      appId: '7j9y6m10', // Your Cloud Dashboard AppID or `baseURL` for on-premises
+      token: 'notoken',
       document: doc,
     })
     return provider;
@@ -74,7 +74,6 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     // Udpate database document 4 seconds after last update
     doc.on('update', update => {
       const base64Encoded = fromUint8Array(update)
-      // setSaved(false);
       debounceUpdate(base64Encoded, docId, docTitle);
     })
     const debounceUpdate = debounce(async (base64Encoded, docId, docTitle) => {
@@ -86,7 +85,7 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
           },
           body: JSON.stringify({
             documentId: docId,
-            title: docTitle,
+            title: null,
             content: base64Encoded
           }),
         });
@@ -113,6 +112,31 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
         console.error('Error fetching data:', error);
       });
   }, [doc]);
+
+  useEffect(() => {
+    const updateTitle = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/document/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            documentId: docId,
+            title: docTitle,
+            content: null
+          }),
+        });
+        const data = await response.json();
+        console.log(data);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+    if (docTitle) {
+      updateTitle();
+    }
+  }, [docTitle]);
 
   const editor = useEditor({
     extensions: [
@@ -151,10 +175,11 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
         types: ['heading', 'paragraph'],
       }),
       Collaboration.configure({
-        document: remoteProvider.document
+        document: remoteProvider.document,
+        field: 'default',
       }),
       CollaborationCursor.configure({
-        provider: remoteProvider
+        provider: remoteProvider,
         //   user: {
         //     name: 'Goon Goon',
         //     color: '#f783ac',
@@ -167,28 +192,48 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     content: ``,
   })
 
-  // const titleEditor = useEditor({
-  //   extensions: [
-  //     Document.extend({
-  //       content: "heading"
-  //     }),
-  //     Text,
-  //     Heading.configure({
-  //       levels: [1]
-  //     }),
-  //     Placeholder.configure({
-  //       placeholder: "Enter a title"
-  //     }),
-  //     Collaboration.configure({
-  //       document: remoteProvider.document,
-  //       field: "title"
-  //     }),
-  //     CollaborationCursor.configure({
-  //       provider: remoteProvider,
-  //       // user: userCursor
-  //     })
-  //   ],
-  // });
+  const titleEditor = useEditor({
+    extensions: [
+      Document.extend({
+        content: "heading"
+      }),
+      Text,
+      Heading.configure({
+        levels: [2]
+      }),
+      Placeholder.configure({
+        placeholder: "Enter a title"
+      }),
+      Collaboration.configure({
+        document: remoteProvider.document,
+        field: "title"
+      }),
+      // CollaborationCursor.configure({
+      //   provider: remoteProvider,
+      //   // user: userCursor
+      // }),
+    ],
+    content: `${docTitle}`
+  });
+
+  function handleTitleEditorKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (!titleEditor || !editor) return
+    const selection = titleEditor.state.selection
+    if (event.shiftKey) {
+      return
+    }
+
+    if (event.key === "Enter" || event.key === "ArrowDown") {
+      setDocTitle(titleEditor.getText());
+      editor.commands.focus("start")
+    }
+
+    if (event.key === "ArrowRight") {
+      if (selection?.$head.nodeAfter === null) {
+        editor.commands.focus("start")
+      }
+    }
+  }
 
   if (!editor) {
     return null;
@@ -197,13 +242,14 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   return (
     <div className='container' data-theme={isDark ? "dark" : "light"}>
       <div className="document-nav-bar">
+        <EditorContent onKeyDown={handleTitleEditorKeyDown} className='document-title' editor={titleEditor} />
         <Menubar />
         <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
         <Toolbar editor={editor} />
       </div>
       <div>
         <div className='document'>
-          <EditorContent editor={editor} />
+          <EditorContent className="main-editor" editor={editor} />
           <TextEditor editor={editor} />
         </div>
       </div>
