@@ -27,7 +27,6 @@ import FontFamily from '@tiptap/extension-font-family'
 import Placeholder from '@tiptap/extension-placeholder'
 import { fromUint8Array, toUint8Array } from 'js-base64'
 import { TiptapCollabProvider } from '@hocuspocus/provider'
-import { IndexeddbPersistence } from 'y-indexeddb'
 import { debounce } from 'lodash';
 import { useEffect, useMemo, useState } from 'react'
 import * as Y from 'yjs'
