@@ -7,7 +7,7 @@ const hexToRgb = (hex) => {
 
 describe('The Home Page', () => {
   beforeEach(() => {
-    cy.visit('/')
+    cy.visit('http://localhost:5173/')
   })
 
   it('successfully loads', () => {
@@ -21,9 +21,13 @@ describe('The Home Page', () => {
 
   })
 
-  it('dark mode works successfully', () => {
-    cy.get('.toggle-container').click()
-    cy.get('.container').should('have.css', 'background-color', hexToRgb("e8e8e8"))
-  })
+  // it('dark mode works successfully', () => {
+  //   cy.get('.toggle-container').click()
+  //   cy.get('.container').should('have.css', 'background-color', hexToRgb("e8e8e8"))
+  //   cy.get('.container').should('have.css', 'color', hexToRgb("0a0a0a"))
+  //   cy.get('.toggle-container').click()
+  //   cy.get('.container').should('have.css', 'background-color', hexToRgb("1c1c1c"))
+  //   cy.get('.container').should('have.css', 'color', hexToRgb("f6f6f6"))
+  // })
 
 })

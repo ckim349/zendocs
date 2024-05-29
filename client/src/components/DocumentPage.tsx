@@ -27,7 +27,6 @@ import FontFamily from '@tiptap/extension-font-family'
 import Placeholder from '@tiptap/extension-placeholder'
 import { fromUint8Array, toUint8Array } from 'js-base64'
 import { TiptapCollabProvider } from '@hocuspocus/provider'
-import { IndexeddbPersistence } from 'y-indexeddb'
 import { debounce } from 'lodash';
 import { useEffect, useMemo, useState } from 'react'
 import * as Y from 'yjs'
@@ -58,7 +57,6 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   }
 
   const doc = useMemo(() => new Y.Doc(), [docId])
-  const indexedDbProvider = new IndexeddbPersistence(docId, doc);
 
   const remoteProvider = useMemo(() => {
     const provider = new TiptapCollabProvider({
@@ -74,9 +72,9 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     // Udpate database document 4 seconds after last update
     doc.on('update', update => {
       const base64Encoded = fromUint8Array(update)
-      debounceUpdate(base64Encoded, docId, docTitle);
+      debounceUpdate(base64Encoded, docId);
     })
-    const debounceUpdate = debounce(async (base64Encoded, docId, docTitle) => {
+    const debounceUpdate = debounce(async (base64Encoded, docId) => {
       try {
         const response = await fetch('http://localhost:5000/document/update', {
           method: 'POST',
