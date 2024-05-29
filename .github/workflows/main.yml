@@ -8,11 +8,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./client
+
+      - name: Start the server
+        run: npm run dev
+        working-directory: ./client &
+
+      - name: Wait for server to be ready
+        uses: jakejarvis/wait-action@master
+        with:
+          url: 'http://localhost:5173'
+
       - name: Cypress run
         uses: cypress-io/github-action@v3
         with:
-          project: ./site
           browser: chrome
-          build: yarn build
-          start: yarn start
-          wait-on: "http://localhost:5173"
