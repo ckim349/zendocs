@@ -16,14 +16,15 @@ exports.document_create_post = [
       const documentId = req.body.documentId;
       const title = req.body.title;
       const content = req.body.content;
-      const currentDate = new Date().toISOString();
+      const createdDate = req.body.createdDate
+      const lastUpdatedDate = req.body.lastUpdatedDate
 
       const document = new Document({
         documentId: documentId,
         title: title,
         content: content,
-        createdDate: currentDate,
-        lastUpdatedDate: currentDate
+        createdDate: createdDate,
+        lastUpdatedDate: lastUpdatedDate
       })
 
       await document.save();

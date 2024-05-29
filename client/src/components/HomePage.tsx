@@ -5,7 +5,7 @@ import ToggleDarkMode from "./ToggleDarkMode";
 import { v4 as uuidv4 } from 'uuid';
 import * as Y from 'yjs'
 import { fromUint8Array } from "js-base64";
-import { openDB } from "idb";
+import { idb } from "../utils/idb";
 
 interface DatabaseDocument {
   documentId: string,
@@ -24,17 +24,50 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
 
   // Get list of documents on render
   useEffect(() => {
-    fetch('http://localhost:5000/document_list', {
-      method: 'GET'
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setDocuments(data.documents);
-        console.log(data.documents);
+    const fetchDocuments = async () => {
+      // Local docs
+      const transaction = (await idb.documents).transaction('localDocuments', 'readonly');
+      const localDocuments = await transaction.store.getAll();
+      setDocuments(localDocuments);
+
+      // Remote docs
+      fetch('http://localhost:5000/document_list', {
+        method: 'GET'
       })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
+        .then((response) => response.json())
+        .then((data) => {
+          const remoteDocuments = data.documents;
+          const mergedDocuments = mergeDocuments(localDocuments, remoteDocuments);
+
+          setDocuments(mergedDocuments);
+
+          const localOnlyDocuments = localDocuments.filter(({ documentId: id1 }) => !remoteDocuments.some(({ documentId: id2 }: DatabaseDocument) => id2 == id1));
+
+          localOnlyDocuments.forEach((doc) => {
+            fetch('http://localhost:5000/document/create', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                "documentId": doc.documentId,
+                "title": doc.title,
+                "content": doc.content,
+                "createdDate": doc.createdDate,
+                "lastUpdatedDate": doc.lastUpdatedDate
+              }),
+            }).catch((error) => {
+              console.error('Error creating document:', error);
+            })
+          });
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+          setDocuments(localDocuments)
+        });
+    };
+
+    fetchDocuments();
   }, [])
 
   const filteredDocuments = useMemo(() => {
@@ -50,10 +83,12 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
     }
   }, [documents, query]);
 
-  const createDocument = (id: string, name: string) => {
+  const createDocument = async (id: string, name: string) => {
     const doc = new Y.Doc();
 
     const content = fromUint8Array(Y.encodeStateAsUpdate(doc));
+    const createdDate = new Date().toISOString();
+    const lastUpdatedDate = createdDate;
 
     fetch('http://localhost:5000/document/create', {
       method: 'POST',
@@ -63,17 +98,26 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
       body: JSON.stringify({
         "documentId": id,
         "title": name,
-        "content": content
+        "content": content,
+        "createdDate": createdDate,
+        "lastUpdatedDate": lastUpdatedDate
       }),
     })
       .then(response => response.json())
       .then(data => console.log(data))
       .catch(error => console.error('Error:', error));
 
+    const transaction = (await idb.documents).transaction('localDocuments', 'readwrite');
+    transaction.store.add({ "documentId": id, "title": name, "content": content, "createdDate": createdDate, "lastUpdatedDate": lastUpdatedDate });
+    transaction.done
+      .catch(() => {
+        console.error('Something went wrong, transaction aborted');
+      });
+
     return content;
   }
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (inputRef.current?.value == "") {
@@ -83,7 +127,7 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
     const value = inputRef.current!.value;
     const documentId = uuidv4();
 
-    const content = createDocument(documentId, value);
+    const content = await createDocument(documentId, value);
     const currentDate = new Date().toISOString();
 
     setDocuments(prev => {
@@ -97,6 +141,7 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
       }]
     });
 
+    navigate(`/document/${documentId}`)
     inputRef.current!.value = "";
   }
 
@@ -105,6 +150,15 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
     createDocument(documentId, "Untitled")
     navigate(`/document/${documentId}`)
   }
+
+  const mergeDocuments = (localDocs: DatabaseDocument[], remoteDocs: DatabaseDocument[]): DatabaseDocument[] => {
+    const mergedDocs = [...localDocs, ...remoteDocs];
+    const uniqueDocs = mergedDocs.reduce((acc: { [key: string]: DatabaseDocument }, doc) => {
+      acc[doc.documentId] = doc;
+      return acc;
+    }, {});
+    return Object.values(uniqueDocs);
+  };
 
   return (
     <div className='container' data-theme={isDark ? "dark" : "light"}>
