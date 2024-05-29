@@ -26,8 +26,8 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
   useEffect(() => {
     const fetchDocuments = async () => {
       // Local docs
-      const transaction = (await idb.documents).transaction('localDocuments', 'readonly');
-      const localDocuments = await transaction.store.getAll();
+      const getDocTransaction = (await idb.documents).transaction('localDocuments', 'readonly');
+      const localDocuments = await getDocTransaction.store.getAll();
       setDocuments(localDocuments);
 
       // Remote docs
@@ -35,13 +35,14 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
         method: 'GET'
       })
         .then((response) => response.json())
-        .then((data) => {
+        .then(async (data) => {
           const remoteDocuments = data.documents;
           const mergedDocuments = mergeDocuments(localDocuments, remoteDocuments);
 
           setDocuments(mergedDocuments);
 
-          const localOnlyDocuments = localDocuments.filter(({ documentId: id1 }) => !remoteDocuments.some(({ documentId: id2 }: DatabaseDocument) => id2 == id1));
+          const localOnlyDocuments = localDocuments.filter(({ documentId: id1 }: DatabaseDocument) => !remoteDocuments.some(({ documentId: id2 }: DatabaseDocument) => id2 == id1));
+          const remoteOnlyDocuments = mergedDocuments.filter(md => !localDocuments.find(ld => (ld.documentId === md.documentId)));
 
           localOnlyDocuments.forEach((doc) => {
             fetch('http://localhost:5000/document/create', {
@@ -60,10 +61,14 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
               console.error('Error creating document:', error);
             })
           });
+
+          const addDocTransaction = (await idb.documents).transaction('localDocuments', 'readwrite');
+          remoteOnlyDocuments.forEach((doc: DatabaseDocument) => {
+            addDocTransaction.store.add({ "documentId": doc.documentId, "title": doc.title, "content": doc.content, "createdDate": doc.createdDate, "lastUpdatedDate": doc.lastUpdatedDate });
+          })
         })
         .catch((error) => {
           console.error('Error fetching data:', error);
-          setDocuments(localDocuments)
         });
     };
 
@@ -72,12 +77,23 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
 
   const filteredDocuments = useMemo(() => {
     if (Array.isArray(documents)) {
-      return documents.filter(document => {
-        // TODO occasional error where document titles are becoming null on update
-        if (document.title !== null) {
-          return document.title.toLowerCase().includes(query.toLowerCase());
-        }
-      });
+      return documents.
+        filter(document => {
+          // TODO occasional error where document titles are becoming null on update
+          if (document.title !== null) {
+            return document.title.toLowerCase().includes(query.toLowerCase());
+          }
+        }).sort((a, b) => {
+          if (a.lastUpdatedDate && b.lastUpdatedDate) {
+            return a.lastUpdatedDate.localeCompare(b.lastUpdatedDate);
+          } else if (a.lastUpdatedDate) {
+            return -1;
+          } else if (b.lastUpdatedDate) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
     } else {
       return [];
     }
@@ -127,22 +143,9 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
     const value = inputRef.current!.value;
     const documentId = uuidv4();
 
-    const content = await createDocument(documentId, value);
-    const currentDate = new Date().toISOString();
-
-    setDocuments(prev => {
-      const prevArray = Array.isArray(prev) ? prev : [];
-      return [...prevArray, {
-        documentId: documentId,
-        title: value,
-        content: content,
-        createdDate: currentDate,
-        lastUpdatedDate: currentDate
-      }]
-    });
+    createDocument(documentId, value);
 
     navigate(`/document/${documentId}`)
-    inputRef.current!.value = "";
   }
 
   const handleClick = () => {
