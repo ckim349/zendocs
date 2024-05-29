@@ -21,9 +21,6 @@ jobs:
         run: npm run dev &
         working-directory: ./client
 
-      - name: Wait for client to be ready
-        run: npx wait-on http://localhost:5173
-
       - name: Cypress run
         uses: cypress-io/github-action@v3
         with:
