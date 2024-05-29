@@ -13,6 +13,9 @@ jobs:
         with:
           node-version: '14' # Adjust according to your project's Node.js version
 
+      - name: Install project dependencies
+        run: npm install
+
       - name: Install client dependencies
         run: npm install
         working-directory: ./client
