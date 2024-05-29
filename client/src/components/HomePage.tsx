@@ -3,9 +3,8 @@ import { Link, useNavigate } from "react-router-dom"
 import { DarkModeProps } from "./DocumentPage";
 import ToggleDarkMode from "./ToggleDarkMode";
 import { v4 as uuidv4 } from 'uuid';
-import * as Y from 'yjs'
-import { fromUint8Array } from "js-base64";
 import { idb } from "../utils/idb";
+import { createDocument } from "../utils/documentRequests";
 
 interface DatabaseDocument {
   documentId: string,
@@ -98,40 +97,6 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
       return [];
     }
   }, [documents, query]);
-
-  const createDocument = async (id: string, name: string) => {
-    const doc = new Y.Doc();
-
-    const content = fromUint8Array(Y.encodeStateAsUpdate(doc));
-    const createdDate = new Date().toISOString();
-    const lastUpdatedDate = createdDate;
-
-    fetch('http://localhost:5000/document/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        "documentId": id,
-        "title": name,
-        "content": content,
-        "createdDate": createdDate,
-        "lastUpdatedDate": lastUpdatedDate
-      }),
-    })
-      .then(response => response.json())
-      .then(data => console.log(data))
-      .catch(error => console.error('Error:', error));
-
-    const transaction = (await idb.documents).transaction('localDocuments', 'readwrite');
-    transaction.store.add({ "documentId": id, "title": name, "content": content, "createdDate": createdDate, "lastUpdatedDate": lastUpdatedDate });
-    transaction.done
-      .catch(() => {
-        console.error('Something went wrong, transaction aborted');
-      });
-
-    return content;
-  }
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

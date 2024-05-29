@@ -30,6 +30,8 @@ import { TiptapCollabProvider } from '@hocuspocus/provider'
 import { debounce } from 'lodash';
 import { useEffect, useMemo, useState } from 'react'
 import * as Y from 'yjs'
+import { IndexeddbPersistence } from 'y-indexeddb'
+
 
 import { LineHeight } from '../tiptap_extensions/LineHeight'
 import { SmilieReplacer } from '../tiptap_extensions/SmilieReplacer'
@@ -38,6 +40,7 @@ import Toolbar from './Toolbar'
 import ToggleDarkMode from './ToggleDarkMode'
 import Menubar from './Menubar'
 import { useParams } from 'react-router-dom'
+import { idb } from '../utils/idb'
 
 export type CustomEditor = Editor | null;
 
@@ -68,7 +71,15 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     return provider;
   }, [doc]);
 
+  const localProvider = useMemo(() => {
+    const provider = new IndexeddbPersistence(docId, doc);
+    return provider;
+  }, [doc]);
+
   useEffect(() => {
+    localProvider.on('synced', () => {
+      console.log('local provider has been synced')
+    })
     // Udpate database document 4 seconds after last update
     doc.on('update', update => {
       const base64Encoded = fromUint8Array(update)
@@ -233,7 +244,7 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     }
   }
 
-  if (!editor) {
+  if (!editor || !titleEditor) {
     return null;
   }
 
@@ -241,7 +252,7 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     <div className='container' data-theme={isDark ? "dark" : "light"}>
       <div className="document-nav-bar">
         <EditorContent onKeyDown={handleTitleEditorKeyDown} className='document-title' editor={titleEditor} />
-        <Menubar />
+        <Menubar title={docTitle} doc={doc} />
         <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
         <Toolbar editor={editor} />
       </div>

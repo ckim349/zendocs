@@ -1,6 +1,30 @@
 import { Menu } from '@headlessui/react'
+import { createDocument, duplicateDocument } from "../utils/documentRequests";
+import { v4 as uuidv4 } from 'uuid';
+import * as Y from 'yjs'
 
-const Menubar = () => {
+interface MenubarProps {
+  title: string,
+  doc: Y.Doc
+}
+
+const Menubar = ({ title, doc }: MenubarProps) => {
+  const openInNewTab = (url: string) => {
+    window.open(url, "_blank", "noreferrer");
+  };
+
+  const handleNew = () => {
+    const documentId = uuidv4();
+    createDocument(documentId, "Untitled");
+    openInNewTab(`/document/${documentId}`)
+  }
+
+  const handleCopy = () => {
+    const documentId = uuidv4();
+    duplicateDocument(documentId, title, doc);
+    openInNewTab(`/document/${documentId}`)
+  }
+
   return (
     <div className="menubar">
       <Menu as='div' className='menubar-dropdown'>
@@ -9,17 +33,17 @@ const Menubar = () => {
         </Menu.Button>
         <Menu.Items className='dropdown-items menubar-dropdown-items'>
           <Menu.Item>
-            <button className='menubar-button'>
+            <button onClick={handleNew} className='menubar-button'>
               New
             </button>
           </Menu.Item>
-          <Menu.Item>
-            <button className='menubar-button'>
+          {/* <Menu.Item>
+            <button onClick={handleOpen} className='menubar-button'>
               Open
             </button>
-          </Menu.Item>
+          </Menu.Item> */}
           <Menu.Item>
-            <button className='menubar-button'>
+            <button onClick={handleCopy} className='menubar-button'>
               Make a copy
             </button>
           </Menu.Item>
