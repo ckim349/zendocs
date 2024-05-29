@@ -25,6 +25,8 @@ jobs:
         working-directory: ./client
 
       - name: Cypress run
-        uses: cypress-io/github-action@v3
+        uses: cypress-io/github-action@v6
         with:
           browser: chrome
+          wait-on: 'http://localhost:5173'
+          wait-on-timeout: 120
