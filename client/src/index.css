@@ -381,6 +381,10 @@ button:focus-visible {
   box-shadow: 0px 0px 5px var(--shadow-color);
 }
 
+.home-create-doc-form {}
+
+.home-create-doc-button {}
+
 .home-document-grid {
   display: flex;
   justify-items: center;

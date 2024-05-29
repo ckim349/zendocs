@@ -174,9 +174,9 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
         New Document
       </div>
 
-      <form onSubmit={onSubmit}>
+      <form className="home-create-doc-form" onSubmit={onSubmit}>
         New document: <input ref={inputRef} type="text" />
-        <button type="submit">Add document</button>
+        <button className="home-create-doc-button" type="submit">Add document</button>
       </form>
       <div className="home-document-grid">
         {filteredDocuments.map((document, index) => (
