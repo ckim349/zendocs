@@ -16,5 +16,7 @@
 // Import commands.js using ES2015 syntax:
 import './commands'
 
+fetch(Cypress.env('baseUrl'), { method: 'GET' })
+
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
