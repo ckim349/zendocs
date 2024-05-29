@@ -7,7 +7,7 @@ const hexToRgb = (hex) => {
 
 describe('The Home Page', () => {
   beforeEach(() => {
-    cy.visit('/')
+    cy.visit('http://localhost:5173/')
   })
 
   it('successfully loads', () => {

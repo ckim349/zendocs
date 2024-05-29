@@ -14,15 +14,10 @@ jobs:
           cd client
           npm ci
 
-      - name: Build Client
-        run: |
-          cd client
-          npm run build
-
       - name: Start Client
         run: |
           cd client
-          npm run preview &
+          npm run dev &
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
