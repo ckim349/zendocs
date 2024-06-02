@@ -11,7 +11,8 @@ interface DatabaseDocument {
   title: string,
   content: string,
   createdDate: string,
-  lastUpdatedDate: string
+  lastUpdatedDate: string,
+  deleted?: boolean
 }
 
 const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
@@ -30,7 +31,7 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
       setDocuments(localDocuments);
 
       // Remote docs
-      fetch('http://localhost:5000/document_list', {
+      await fetch('http://localhost:5000/document_list', {
         method: 'GET'
       })
         .then((response) => response.json())
@@ -39,6 +40,29 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
           const mergedDocuments = mergeDocuments(localDocuments, remoteDocuments);
 
           setDocuments(mergedDocuments);
+
+          // Delete any documents up for deletion
+          const documentsToDelete = localDocuments.filter((doc) => { doc.deleted === true });
+          const transaction = (await idb.documents).transaction('localDocuments', 'readwrite');
+          documentsToDelete.forEach(async (doc) => {
+            transaction.store.delete(doc.documentId);
+
+            fetch(`http://localhost:5000/document/delete/${doc.documentId}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                "documentId": doc.documentId,
+              }),
+            })
+              .then(response => response.json())
+              .then(data => console.log(data))
+              .catch(error => {
+                console.error('Error:', error)
+              }
+              );
+          })
 
           const localOnlyDocuments = localDocuments.filter(({ documentId: id1 }: DatabaseDocument) => !remoteDocuments.some(({ documentId: id2 }: DatabaseDocument) => id2 == id1));
           const remoteOnlyDocuments = mergedDocuments.filter(md => !localDocuments.find(ld => (ld.documentId === md.documentId)));
@@ -63,7 +87,7 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
 
           const addDocTransaction = (await idb.documents).transaction('localDocuments', 'readwrite');
           remoteOnlyDocuments.forEach((doc: DatabaseDocument) => {
-            addDocTransaction.store.add({ "documentId": doc.documentId, "title": doc.title, "content": doc.content, "createdDate": doc.createdDate, "lastUpdatedDate": doc.lastUpdatedDate });
+            addDocTransaction.store.add({ "documentId": doc.documentId, "title": doc.title, "content": doc.content, "createdDate": doc.createdDate, "lastUpdatedDate": doc.lastUpdatedDate, "deleted": false });
           })
         })
         .catch((error) => {
@@ -79,16 +103,12 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
       return documents.
         filter(document => {
           // TODO occasional error where document titles are becoming null on update
-          if (document.title !== null) {
+          if ((!document.hasOwnProperty('deleted') || (document.hasOwnProperty('deleted') && !document.deleted)) && document.title !== null) {
             return document.title.toLowerCase().includes(query.toLowerCase());
           }
         }).sort((a, b) => {
-          if (a.lastUpdatedDate && b.lastUpdatedDate) {
-            return a.lastUpdatedDate.localeCompare(b.lastUpdatedDate);
-          } else if (a.lastUpdatedDate) {
+          if (a.lastUpdatedDate > b.lastUpdatedDate) {
             return -1;
-          } else if (b.lastUpdatedDate) {
-            return 1;
           } else {
             return 0;
           }

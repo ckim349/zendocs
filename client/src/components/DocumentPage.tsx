@@ -30,8 +30,7 @@ import { TiptapCollabProvider } from '@hocuspocus/provider'
 import { debounce } from 'lodash';
 import { useEffect, useMemo, useState } from 'react'
 import * as Y from 'yjs'
-import { IndexeddbPersistence } from 'y-indexeddb'
-
+// import { IndexeddbPersistence } from 'y-indexeddb'
 
 import { LineHeight } from '../tiptap_extensions/LineHeight'
 import { SmilieReplacer } from '../tiptap_extensions/SmilieReplacer'
@@ -40,7 +39,7 @@ import Toolbar from './Toolbar'
 import ToggleDarkMode from './ToggleDarkMode'
 import Menubar from './Menubar'
 import { useParams } from 'react-router-dom'
-import { idb } from '../utils/idb'
+import { loadDocument, updateDocument } from '../utils/documentRequests'
 
 export type CustomEditor = Editor | null;
 
@@ -71,81 +70,61 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     return provider;
   }, [doc]);
 
-  const localProvider = useMemo(() => {
-    const provider = new IndexeddbPersistence(docId, doc);
-    return provider;
-  }, [doc]);
+  // const localProvider = useMemo(() => {
+  //   const provider = new IndexeddbPersistence(docId, doc);
+  //   return provider;
+  // }, [doc]);
 
   useEffect(() => {
-    localProvider.on('synced', () => {
-      console.log('local provider has been synced')
-    })
-    // Udpate database document 4 seconds after last update
+    // localProvider.on('synced', () => {
+    //   console.log('local provider has been synced')
+    // })
+    // Udpate database document 3 seconds after last update
     doc.on('update', update => {
       const base64Encoded = fromUint8Array(update)
       debounceUpdate(base64Encoded, docId);
     })
     const debounceUpdate = debounce(async (base64Encoded, docId) => {
-      try {
-        const response = await fetch('http://localhost:5000/document/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            documentId: docId,
-            title: null,
-            content: base64Encoded
-          }),
-        });
-        const data = await response.json();
-        console.log(data);
-      } catch (error) {
-        console.error('Error:', error);
-      } finally {
-        // setSaved(true);
-      }
-    }, 4000);
+      updateDocument(base64Encoded, docId, docTitle);
+    }, 3000);
 
-    // Load document from database
-    fetch(`http://localhost:5000/document/load/${docId}`, {
-      method: "GET"
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        const update = toUint8Array(data.docToFind.content);
-        Y.applyUpdate(doc, update);
-        setDocTitle(data.docToFind.title);
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
+    const initialiseDocument = async () => {
+      // Load document from local and remote database
+      const storedDoc = await loadDocument(docId);
+      if (storedDoc.content !== "AA==" || storedDoc.content !== "AAA==" || storedDoc.content !== null) {
+        Y.applyUpdate(doc, toUint8Array(storedDoc.content));
+      }
+      setDocTitle(storedDoc.title);
+    }
+
+    initialiseDocument();
+
   }, [doc]);
 
-  useEffect(() => {
-    const updateTitle = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/document/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            documentId: docId,
-            title: docTitle,
-            content: null
-          }),
-        });
-        const data = await response.json();
-        console.log(data);
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    }
-    if (docTitle) {
-      updateTitle();
-    }
-  }, [docTitle]);
+  // useEffect(() => {
+  //   const updateTitle = async () => {
+  //     try {
+  //       const response = await fetch('http://localhost:5000/document/update', {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json'
+  //         },
+  //         body: JSON.stringify({
+  //           documentId: docId,
+  //           title: docTitle,
+  //           content: null
+  //         }),
+  //       });
+  //       const data = await response.json();
+  //       console.log(data);
+  //     } catch (error) {
+  //       console.error('Error:', error);
+  //     }
+  //   }
+  //   if (docTitle) {
+  //     updateTitle();
+  //   }
+  // }, [docTitle]);
 
   const editor = useEditor({
     extensions: [
@@ -252,7 +231,7 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     <div className='container' data-theme={isDark ? "dark" : "light"}>
       <div className="document-nav-bar">
         <EditorContent onKeyDown={handleTitleEditorKeyDown} className='document-title' editor={titleEditor} />
-        <Menubar title={docTitle} doc={doc} />
+        <Menubar editor={editor} titleEditor={titleEditor} title={docTitle} docId={docId} doc={doc} />
         <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
         <Toolbar editor={editor} />
       </div>

@@ -1,14 +1,21 @@
 import { Menu } from '@headlessui/react'
-import { createDocument, duplicateDocument } from "../utils/documentRequests";
+import { createDocument, deleteDocument, duplicateDocument } from "../utils/documentRequests";
 import { v4 as uuidv4 } from 'uuid';
 import * as Y from 'yjs'
+import { CustomEditor } from './DocumentPage';
+import { useNavigate } from 'react-router-dom';
 
 interface MenubarProps {
+  editor: CustomEditor,
+  titleEditor: CustomEditor,
   title: string,
+  docId: string,
   doc: Y.Doc
 }
 
-const Menubar = ({ title, doc }: MenubarProps) => {
+const Menubar = ({ editor, titleEditor, title, docId, doc }: MenubarProps) => {
+  const navigate = useNavigate();
+
   const openInNewTab = (url: string) => {
     window.open(url, "_blank", "noreferrer");
   };
@@ -23,6 +30,17 @@ const Menubar = ({ title, doc }: MenubarProps) => {
     const documentId = uuidv4();
     duplicateDocument(documentId, title, doc);
     openInNewTab(`/document/${documentId}`)
+  }
+
+  const handleRename = () => {
+    if (!titleEditor || !editor) return
+    titleEditor.commands.focus("all");
+  }
+
+  const handleDelete = () => {
+    // modal to ask if you're sure
+    deleteDocument(docId);
+    navigate('/');
   }
 
   return (
@@ -64,13 +82,13 @@ const Menubar = ({ title, doc }: MenubarProps) => {
             <hr></hr>
           </div>
           <Menu.Item>
-            <button className='menubar-button'>
+            <button onClick={handleRename} className='menubar-button'>
               Rename
             </button>
           </Menu.Item>
           <Menu.Item>
-            <button className='menubar-button'>
-              Delete
+            <button onClick={handleDelete} className='menubar-button'>
+              Delete document
             </button>
           </Menu.Item>
           <div>
