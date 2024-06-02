@@ -1,11 +1,8 @@
-interface ModalProps {
+interface ShareModalProps {
   closeModal: () => void;
-  handleAction: () => void;
-  title: string;
-  actionLabel: string;
+  handleCopy: () => void;
 }
-
-const Modal = ({ closeModal, handleAction, title, actionLabel }: ModalProps) => {
+const ShareModal = ({ closeModal, handleCopy }: ShareModalProps) => {
   const handleCancel = () => {
     closeModal();
   }
@@ -13,10 +10,13 @@ const Modal = ({ closeModal, handleAction, title, actionLabel }: ModalProps) => 
   return (
     <div className="document-modal-overlay">
       <div className="document-modal">
-        <h1>{title}</h1>
+        <h1>Use this link to share!</h1>
+        <div className="share-link">
+          {window.location.href}
+        </div>
         <div>
-          <button className="format-button" onClick={handleAction}>
-            {actionLabel}
+          <button className="format-button" onClick={handleCopy}>
+            Copy link
           </button>
           <button className="format-button" onClick={handleCancel}>
             Cancel
@@ -27,4 +27,4 @@ const Modal = ({ closeModal, handleAction, title, actionLabel }: ModalProps) => 
   )
 }
 
-export default Modal;
+export default ShareModal

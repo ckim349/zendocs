@@ -41,6 +41,7 @@ import Menubar from './Menubar'
 import { useParams } from 'react-router-dom'
 import { loadDocument, updateDocument } from '../utils/documentRequests'
 import DeleteModal from './modals/DeleteModal'
+import ShareModal from './modals/ShareModal'
 
 export type CustomEditor = Editor | null;
 
@@ -53,7 +54,9 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   // const [docId, setDocId] = useState();
   const { id: docId } = useParams();
   const [docTitle, setDocTitle] = useState<string>("");
-  const [modalIsOpen, setIsOpen] = useState(false);
+  const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
+  const [shareModalIsOpen, setShareModalIsOpen] = useState(false);
+
   const [deleteConfirmed, setDeleteConfirmed] = useState(false);
   // const [saved, setSaved] = useState(true);
 
@@ -61,19 +64,33 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     return null;
   }
 
-  function openModal() {
-    setIsOpen(true);
+  function openDeleteModal() {
+    setDeleteModalIsOpen(true);
     document.body.style.overflow = 'hidden';
   }
 
-  function closeModal() {
-    setIsOpen(false);
+  function closeDeleteModal() {
+    setDeleteModalIsOpen(false);
     document.body.style.overflow = 'unset';
   }
 
   function handleDelete() {
     setDeleteConfirmed(true);
-    closeModal();
+    closeDeleteModal();
+  }
+
+  function openShareModal() {
+    setShareModalIsOpen(true);
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeShareModal() {
+    setShareModalIsOpen(false);
+    document.body.style.overflow = 'unset';
+  }
+
+  function handleCopy() {
+    navigator.clipboard.writeText(window.location.href)
   }
 
   const doc = useMemo(() => new Y.Doc(), [docId])
@@ -247,10 +264,11 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
 
   return (
     <div className='container' data-theme={isDark ? "dark" : "light"}>
-      {modalIsOpen ? <DeleteModal closeModal={closeModal} handleDelete={handleDelete}></DeleteModal> : null}
+      {deleteModalIsOpen ? <DeleteModal closeModal={closeDeleteModal} handleDelete={handleDelete}></DeleteModal> : null}
+      {shareModalIsOpen ? <ShareModal closeModal={closeShareModal} handleCopy={handleCopy}></ShareModal> : null}
       <div className="document-nav-bar">
         <EditorContent onKeyDown={handleTitleEditorKeyDown} className='document-title' editor={titleEditor} />
-        <Menubar editor={editor} titleEditor={titleEditor} title={docTitle} docId={docId} doc={doc} deleteConfirmed={deleteConfirmed} openModal={openModal} setDeleteConfirmed={setDeleteConfirmed} />
+        <Menubar editor={editor} titleEditor={titleEditor} title={docTitle} docId={docId} doc={doc} deleteConfirmed={deleteConfirmed} openDeleteModal={openDeleteModal} setDeleteConfirmed={setDeleteConfirmed} openShareModal={openShareModal} />
         <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
         <Toolbar editor={editor} />
       </div>

@@ -13,11 +13,12 @@ interface MenubarProps {
   docId: string,
   doc: Y.Doc,
   deleteConfirmed: boolean,
-  openModal: () => void,
-  setDeleteConfirmed: React.Dispatch<React.SetStateAction<boolean>>
+  openDeleteModal: () => void,
+  setDeleteConfirmed: React.Dispatch<React.SetStateAction<boolean>>,
+  openShareModal: () => void,
 }
 
-const Menubar = ({ editor, titleEditor, title, docId, doc, deleteConfirmed, openModal, setDeleteConfirmed }: MenubarProps) => {
+const Menubar = ({ editor, titleEditor, title, docId, doc, deleteConfirmed, openDeleteModal, setDeleteConfirmed, openShareModal }: MenubarProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,16 +51,15 @@ const Menubar = ({ editor, titleEditor, title, docId, doc, deleteConfirmed, open
   }
 
   const handleDelete = () => {
-    // modal to ask if you're sure
-    openModal();
+    openDeleteModal();
   }
 
   const handleShare = () => {
-    console.log(window.location.href);
+    openShareModal();
   }
 
   const handleDownload = () => {
-    openModal();
+    null;
   }
 
   const handlePrint = () => {

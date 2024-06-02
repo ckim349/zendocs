@@ -1,20 +1,27 @@
-import Modal from "./Modal";
-
 interface DeleteModalProps {
   closeModal: () => void;
   handleDelete: () => void;
 }
 
 const DeleteModal = ({ closeModal, handleDelete }: DeleteModalProps) => {
+  const handleCancel = () => {
+    closeModal();
+  }
 
   return (
-    <Modal
-      closeModal={closeModal}
-      handleAction={handleDelete}
-      title="Confirm document deletion"
-      actionLabel="Permanently delete"
-    >
-    </Modal>
+    <div className="document-modal-overlay">
+      <div className="document-modal">
+        <h1>Confirm deletion</h1>
+        <div>
+          <button className="format-button" onClick={handleDelete}>
+            Permanently delete
+          </button>
+          <button className="format-button" onClick={handleCancel}>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 

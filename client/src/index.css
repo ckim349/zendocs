@@ -457,6 +457,14 @@ button:focus-visible {
   align-items: center;
 }
 
+.share-link {
+  width: 350px;
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
 @media print {
   body {
     background: none;
