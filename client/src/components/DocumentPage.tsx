@@ -40,6 +40,7 @@ import ToggleDarkMode from './ToggleDarkMode'
 import Menubar from './Menubar'
 import { useParams } from 'react-router-dom'
 import { loadDocument, updateDocument } from '../utils/documentRequests'
+import DeleteModal from './modals/DeleteModal'
 
 export type CustomEditor = Editor | null;
 
@@ -52,10 +53,27 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   // const [docId, setDocId] = useState();
   const { id: docId } = useParams();
   const [docTitle, setDocTitle] = useState<string>("");
+  const [modalIsOpen, setIsOpen] = useState(false);
+  const [deleteConfirmed, setDeleteConfirmed] = useState(false);
   // const [saved, setSaved] = useState(true);
 
   if (!docId) {
     return null;
+  }
+
+  function openModal() {
+    setIsOpen(true);
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    setIsOpen(false);
+    document.body.style.overflow = 'unset';
+  }
+
+  function handleDelete() {
+    setDeleteConfirmed(true);
+    closeModal();
   }
 
   const doc = useMemo(() => new Y.Doc(), [docId])
@@ -229,17 +247,16 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
 
   return (
     <div className='container' data-theme={isDark ? "dark" : "light"}>
+      {modalIsOpen ? <DeleteModal closeModal={closeModal} handleDelete={handleDelete}></DeleteModal> : null}
       <div className="document-nav-bar">
         <EditorContent onKeyDown={handleTitleEditorKeyDown} className='document-title' editor={titleEditor} />
-        <Menubar editor={editor} titleEditor={titleEditor} title={docTitle} docId={docId} doc={doc} />
+        <Menubar editor={editor} titleEditor={titleEditor} title={docTitle} docId={docId} doc={doc} deleteConfirmed={deleteConfirmed} openModal={openModal} setDeleteConfirmed={setDeleteConfirmed} />
         <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
         <Toolbar editor={editor} />
       </div>
-      <div>
-        <div className='document'>
-          <EditorContent className="main-editor" editor={editor} />
-          <TextEditor editor={editor} />
-        </div>
+      <div className='document'>
+        <EditorContent className="main-editor" editor={editor} />
+        <TextEditor editor={editor} />
       </div>
     </div>
   )

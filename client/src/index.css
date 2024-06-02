@@ -13,6 +13,7 @@
 
   --background-color: #f6f6f6;
   --foreground-color: #e8e8e8;
+  --modal-overlay-color: rgba(173, 173, 173, 0.5);
   --shadow-color: #0a0a0a;
   --primary-text-color: #0a0a0a;
   --secondary-text-color: #ffffff;
@@ -26,12 +27,20 @@
 [data-theme="dark"] {
   --background-color: #0a0a0a;
   --foreground-color: #1c1c1c;
+  --modal-overlay-color: rgba(14, 14, 14, 0.5);
   --shadow-color: #f6f6f6;
   --primary-text-color: #f6f6f6;
   --secondary-text-color: #0a0a0a;
   --toggle-bg: #283452;
   --toggle-fg: #00a6ff;
   --button-hover-color: #343434;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .toggle-container {
@@ -151,7 +160,8 @@ button:focus-visible {
 }
 
 .document {
-  margin-top: 50px;
+  margin-top: 130px;
+  margin-bottom: 30px;
   width: 755px;
   padding-bottom: var(--document-height);
   background-color: var(--background-color);
@@ -178,7 +188,6 @@ button:focus-visible {
   /* align-items: center; */
   background-color: var(--background-color);
   box-sizing: border-box;
-  position: relative;
   /* padding: 8px; */
   height: 120px;
 }
@@ -420,6 +429,32 @@ button:focus-visible {
   position: relative;
   display: block;
   height: 60px;
+}
+
+.document-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 104;
+  background-color: var(--modal-overlay-color);
+  opacity: 1;
+}
+
+.document-modal {
+  width: 450px;
+  height: 450px;
+  background-color: var(--foreground-color);
+  border-radius: 4px;
+  box-shadow: 0px 0px 0px 4px;
+  z-index: 105;
+  margin: auto;
+  margin-top: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 @media print {

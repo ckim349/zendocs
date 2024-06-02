@@ -42,9 +42,7 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
           setDocuments(mergedDocuments);
 
           // Delete any documents up for deletion
-          console.log(localDocuments)
           const documentsToDelete = localDocuments.filter((doc) => doc.deleted === true);
-          console.log('documents up for deleteion', documentsToDelete);
           const transaction = (await idb.documents).transaction('localDocuments', 'readwrite');
           documentsToDelete.forEach(async (doc) => {
             await transaction.store.delete(doc.documentId);
