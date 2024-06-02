@@ -42,10 +42,12 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
           setDocuments(mergedDocuments);
 
           // Delete any documents up for deletion
-          const documentsToDelete = localDocuments.filter((doc) => { doc.deleted === true });
+          console.log(localDocuments)
+          const documentsToDelete = localDocuments.filter((doc) => doc.deleted === true);
+          console.log('documents up for deleteion', documentsToDelete);
           const transaction = (await idb.documents).transaction('localDocuments', 'readwrite');
           documentsToDelete.forEach(async (doc) => {
-            transaction.store.delete(doc.documentId);
+            await transaction.store.delete(doc.documentId);
 
             fetch(`http://localhost:5000/document/delete/${doc.documentId}`, {
               method: 'POST',
@@ -59,7 +61,7 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
               .then(response => response.json())
               .then(data => console.log(data))
               .catch(error => {
-                console.error('Error:', error)
+                console.error('Error:', error);
               }
               );
           })

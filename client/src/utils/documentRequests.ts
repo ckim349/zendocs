@@ -89,7 +89,6 @@ export const deleteDocument = async (docId: string) => {
 
     localDoc.deleted = true;
     transaction.store.put(localDoc);
-    return;
   }
   deleteFromDatabase();
 }

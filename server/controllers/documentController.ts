@@ -43,7 +43,7 @@ exports.document_delete_post = [
     } else {
       const documentId = req.body.documentId;
 
-      await Document.deleteOne({ documentId: documentId })
+      await Document.deleteMany({ documentId: documentId })
       console.log('deleted from remote');
 
       res.json({ success: true });
