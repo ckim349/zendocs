@@ -30,7 +30,6 @@ import { TiptapCollabProvider } from '@hocuspocus/provider'
 import { debounce } from 'lodash';
 import { useEffect, useMemo, useState } from 'react'
 import * as Y from 'yjs'
-// import { IndexeddbPersistence } from 'y-indexeddb'
 
 import { LineHeight } from '../tiptap_extensions/LineHeight'
 import { SmilieReplacer } from '../tiptap_extensions/SmilieReplacer'
@@ -53,12 +52,25 @@ export interface DarkModeProps {
 const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   // const [docId, setDocId] = useState();
   const { id: docId } = useParams();
+
   const [docTitle, setDocTitle] = useState<string>("");
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
   const [shareModalIsOpen, setShareModalIsOpen] = useState(false);
-
   const [deleteConfirmed, setDeleteConfirmed] = useState(false);
+  const [zen, setZen] = useState(false);
   // const [saved, setSaved] = useState(true);
+
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      if (!zen) {
+        return;
+      }
+      if (!document.fullscreenElement) {
+        setZen(false);
+      }
+    };
+    addEventListener("fullscreenchange", onFullscreenChange);
+  })
 
   if (!docId) {
     return null;
@@ -87,10 +99,6 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   function closeShareModal() {
     setShareModalIsOpen(false);
     document.body.style.overflow = 'unset';
-  }
-
-  function handleCopy() {
-    navigator.clipboard.writeText(window.location.href)
   }
 
   const doc = useMemo(() => new Y.Doc(), [docId])
@@ -135,31 +143,6 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     initialiseDocument();
 
   }, [doc]);
-
-  // useEffect(() => {
-  //   const updateTitle = async () => {
-  //     try {
-  //       const response = await fetch('http://localhost:5000/document/update', {
-  //         method: 'POST',
-  //         headers: {
-  //           'Content-Type': 'application/json'
-  //         },
-  //         body: JSON.stringify({
-  //           documentId: docId,
-  //           title: docTitle,
-  //           content: null
-  //         }),
-  //       });
-  //       const data = await response.json();
-  //       console.log(data);
-  //     } catch (error) {
-  //       console.error('Error:', error);
-  //     }
-  //   }
-  //   if (docTitle) {
-  //     updateTitle();
-  //   }
-  // }, [docTitle]);
 
   const editor = useEditor({
     extensions: [
@@ -263,12 +246,12 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   }
 
   return (
-    <div className='container' data-theme={isDark ? "dark" : "light"}>
+    <div className={`container ${zen ? 'zen' : ''}`} data-theme={isDark ? "dark" : "light"}>
       {deleteModalIsOpen ? <DeleteModal closeModal={closeDeleteModal} handleDelete={handleDelete}></DeleteModal> : null}
-      {shareModalIsOpen ? <ShareModal closeModal={closeShareModal} handleCopy={handleCopy}></ShareModal> : null}
+      {shareModalIsOpen ? <ShareModal closeModal={closeShareModal} ></ShareModal> : null}
       <div className="document-nav-bar">
         <EditorContent onKeyDown={handleTitleEditorKeyDown} className='document-title' editor={titleEditor} />
-        <Menubar editor={editor} titleEditor={titleEditor} title={docTitle} docId={docId} doc={doc} deleteConfirmed={deleteConfirmed} openDeleteModal={openDeleteModal} setDeleteConfirmed={setDeleteConfirmed} openShareModal={openShareModal} />
+        <Menubar editor={editor} titleEditor={titleEditor} title={docTitle} docId={docId} doc={doc} deleteConfirmed={deleteConfirmed} openDeleteModal={openDeleteModal} setDeleteConfirmed={setDeleteConfirmed} openShareModal={openShareModal} setZen={setZen} />
         <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
         <Toolbar editor={editor} />
       </div>

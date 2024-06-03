@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as Y from 'yjs'
 import { CustomEditor } from './DocumentPage';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface MenubarProps {
   editor: CustomEditor,
@@ -16,10 +16,20 @@ interface MenubarProps {
   openDeleteModal: () => void,
   setDeleteConfirmed: React.Dispatch<React.SetStateAction<boolean>>,
   openShareModal: () => void,
+  setZen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const Menubar = ({ editor, titleEditor, title, docId, doc, deleteConfirmed, openDeleteModal, setDeleteConfirmed, openShareModal }: MenubarProps) => {
+const Menubar = ({ editor, titleEditor, title, docId, doc, deleteConfirmed, openDeleteModal, setDeleteConfirmed, openShareModal, setZen }: MenubarProps) => {
   const navigate = useNavigate();
+  const [isMacOs, setIsMacOs] = useState(false);
+
+  useEffect(() => {
+    if (window.navigator.userAgent.indexOf("Mac OS") != -1) {
+      setIsMacOs(true)
+    } else {
+      setIsMacOs(false);
+    }
+  })
 
   useEffect(() => {
     if (deleteConfirmed) {
@@ -58,14 +68,15 @@ const Menubar = ({ editor, titleEditor, title, docId, doc, deleteConfirmed, open
     openShareModal();
   }
 
-  const handleDownload = () => {
-    null;
-  }
-
   const handlePrint = () => {
     setTimeout(() => {
       window.print();
     }, 50);
+  }
+
+  const handleZen = () => {
+    document.documentElement.requestFullscreen();
+    setZen(true);
   }
 
   return (
@@ -80,11 +91,6 @@ const Menubar = ({ editor, titleEditor, title, docId, doc, deleteConfirmed, open
               New
             </button>
           </Menu.Item>
-          {/* <Menu.Item>
-            <button onClick={handleOpen} className='menubar-button'>
-              Open
-            </button>
-          </Menu.Item> */}
           <Menu.Item>
             <button onClick={handleCopy} className='menubar-button'>
               Make a copy
@@ -96,11 +102,6 @@ const Menubar = ({ editor, titleEditor, title, docId, doc, deleteConfirmed, open
           <Menu.Item>
             <button onClick={handleShare} className='menubar-button'>
               Share
-            </button>
-          </Menu.Item>
-          <Menu.Item>
-            <button onClick={handleDownload} className='menubar-button'>
-              Download
             </button>
           </Menu.Item>
           <div>
@@ -132,36 +133,13 @@ const Menubar = ({ editor, titleEditor, title, docId, doc, deleteConfirmed, open
         </Menu.Button>
         <Menu.Items className='dropdown-items menubar-dropdown-items'>
           <Menu.Item>
-            <button className='menubar-button'>
-              Undo
+            <button onClick={() => editor?.chain().focus().undo().run()} className='menubar-button'>
+              Undo {isMacOs ? '(Cmd+Z)' : '(Ctrl+Z)'}
             </button>
           </Menu.Item>
           <Menu.Item>
-            <button className='menubar-button'>
-              Redo
-            </button>
-          </Menu.Item>
-          <div>
-            <hr></hr>
-          </div>
-          <Menu.Item>
-            <button className='menubar-button'>
-              Cut
-            </button>
-          </Menu.Item>
-          <Menu.Item>
-            <button className='menubar-button'>
-              Copy
-            </button>
-          </Menu.Item>
-          <Menu.Item>
-            <button className='menubar-button'>
-              Paste
-            </button>
-          </Menu.Item>
-          <Menu.Item>
-            <button className='menubar-button'>
-              Paste without formatting
+            <button onClick={() => editor?.chain().focus().redo().run()} className='menubar-button'>
+              Redo {isMacOs ? '(Cmd+Y)' : '(Ctrl+Y)'}
             </button>
           </Menu.Item>
         </Menu.Items>
@@ -172,7 +150,12 @@ const Menubar = ({ editor, titleEditor, title, docId, doc, deleteConfirmed, open
         </Menu.Button>
         <Menu.Items className='dropdown-items menubar-dropdown-items'>
           <Menu.Item>
-            <button className='menubar-button'>
+            <button onClick={() => document.documentElement.requestFullscreen()} className='menubar-button'>
+              Full Screen
+            </button>
+          </Menu.Item>
+          <Menu.Item>
+            <button onClick={handleZen} className='menubar-button'>
               Zen Mode
             </button>
           </Menu.Item>
@@ -203,34 +186,7 @@ const Menubar = ({ editor, titleEditor, title, docId, doc, deleteConfirmed, open
           </Menu.Item>
         </Menu.Items>
       </Menu>
-      <Menu as='div' className='menubar-dropdown'>
-        <Menu.Button className='menubar-dropdown-button'>
-          Format
-        </Menu.Button>
-        <Menu.Items className='dropdown-items menubar-dropdown-items'>
-          <Menu.Item>
-            <button className='menubar-button'>
-              Text Format
-            </button>
-          </Menu.Item>
-          <Menu.Item>
-            <button className='menubar-button'>
-              Text Align
-            </button>
-          </Menu.Item>
-          <Menu.Item>
-            <button className='menubar-button'>
-              Text Style
-            </button>
-          </Menu.Item>
-          <Menu.Item>
-            <button className='menubar-button'>
-              Line Spacing
-            </button>
-          </Menu.Item>
-        </Menu.Items>
-      </Menu>
-    </div>
+    </div >
   )
 }
 

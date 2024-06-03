@@ -152,7 +152,7 @@ export const updateDocument = async (base64Encoded: string, docId: string, docTi
     },
     body: JSON.stringify({
       documentId: docId,
-      title: null,
+      title: docTitle,
       content: base64Encoded
     }),
   })

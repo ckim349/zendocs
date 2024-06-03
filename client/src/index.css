@@ -443,8 +443,8 @@ button:focus-visible {
 }
 
 .document-modal {
-  width: 450px;
-  height: 450px;
+  width: 500px;
+  height: 350px;
   background-color: var(--foreground-color);
   border-radius: 4px;
   box-shadow: 0px 0px 0px 4px;
@@ -463,6 +463,14 @@ button:focus-visible {
   border-width: 2px;
   border-radius: 4px;
   margin-bottom: 10px;
+}
+
+.zen .document-nav-bar {
+  display: none;
+}
+
+.zen .document {
+  margin-top: 30px;
 }
 
 @media print {

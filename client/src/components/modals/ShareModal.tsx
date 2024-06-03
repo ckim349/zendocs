@@ -1,8 +1,7 @@
 interface ShareModalProps {
   closeModal: () => void;
-  handleCopy: () => void;
 }
-const ShareModal = ({ closeModal, handleCopy }: ShareModalProps) => {
+const ShareModal = ({ closeModal }: ShareModalProps) => {
   const handleCancel = () => {
     closeModal();
   }
@@ -15,7 +14,7 @@ const ShareModal = ({ closeModal, handleCopy }: ShareModalProps) => {
           {window.location.href}
         </div>
         <div>
-          <button className="format-button" onClick={handleCopy}>
+          <button className="format-button" onClick={() => navigator.clipboard.writeText(window.location.href)}>
             Copy link
           </button>
           <button className="format-button" onClick={handleCancel}>
