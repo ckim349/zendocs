@@ -246,20 +246,23 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   }
 
   return (
-    <div className={`container ${zen ? 'zen' : ''}`} data-theme={isDark ? "dark" : "light"}>
-      {deleteModalIsOpen ? <DeleteModal closeModal={closeDeleteModal} handleDelete={handleDelete}></DeleteModal> : null}
-      {shareModalIsOpen ? <ShareModal closeModal={closeShareModal} ></ShareModal> : null}
-      <div className="document-nav-bar">
-        <EditorContent onKeyDown={handleTitleEditorKeyDown} className='document-title' editor={titleEditor} />
-        <Menubar editor={editor} titleEditor={titleEditor} title={docTitle} docId={docId} doc={doc} deleteConfirmed={deleteConfirmed} openDeleteModal={openDeleteModal} setDeleteConfirmed={setDeleteConfirmed} openShareModal={openShareModal} setZen={setZen} />
-        <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
-        <Toolbar editor={editor} />
-      </div>
-      <div className='document'>
-        <EditorContent className="main-editor" editor={editor} />
-        <TextEditor editor={editor} />
+    <div className={zen ? 'zen' : ''}>
+      <div className='container' data-theme={isDark ? "dark" : "light"}>
+        {deleteModalIsOpen ? <DeleteModal closeModal={closeDeleteModal} handleDelete={handleDelete}></DeleteModal> : null}
+        {shareModalIsOpen ? <ShareModal closeModal={closeShareModal} ></ShareModal> : null}
+        <div className="document-nav-bar">
+          <EditorContent onKeyDown={handleTitleEditorKeyDown} className='document-title' editor={titleEditor} />
+          <Menubar editor={editor} titleEditor={titleEditor} title={docTitle} docId={docId} doc={doc} deleteConfirmed={deleteConfirmed} openDeleteModal={openDeleteModal} setDeleteConfirmed={setDeleteConfirmed} openShareModal={openShareModal} setZen={setZen} />
+          <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
+          <Toolbar editor={editor} />
+        </div>
+        <div className='document'>
+          <EditorContent className="main-editor" editor={editor} />
+          <TextEditor editor={editor} />
+        </div>
       </div>
     </div>
+
   )
 }
 
