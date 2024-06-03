@@ -25,10 +25,11 @@ import Italic from '@tiptap/extension-italic'
 import Strike from '@tiptap/extension-strike'
 import FontFamily from '@tiptap/extension-font-family'
 import Placeholder from '@tiptap/extension-placeholder'
+import Link from '@tiptap/extension-link'
 import { fromUint8Array, toUint8Array } from 'js-base64'
 import { TiptapCollabProvider } from '@hocuspocus/provider'
 import { debounce } from 'lodash';
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import * as Y from 'yjs'
 
 import { LineHeight } from '../tiptap_extensions/LineHeight'
@@ -74,31 +75,6 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
 
   if (!docId) {
     return null;
-  }
-
-  function openDeleteModal() {
-    setDeleteModalIsOpen(true);
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeDeleteModal() {
-    setDeleteModalIsOpen(false);
-    document.body.style.overflow = 'unset';
-  }
-
-  function handleDelete() {
-    setDeleteConfirmed(true);
-    closeDeleteModal();
-  }
-
-  function openShareModal() {
-    setShareModalIsOpen(true);
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeShareModal() {
-    setShareModalIsOpen(false);
-    document.body.style.overflow = 'unset';
   }
 
   const doc = useMemo(() => new Y.Doc(), [docId])
@@ -194,6 +170,13 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
       CodeBlock,
       ListItem,
       LineHeight,
+      Link.configure({
+        protocols: ['ftp', 'mailto'],
+        autolink: true,
+      }),
+      Link.extend({
+        inclusive: false
+      })
     ],
     content: ``,
   })
@@ -222,6 +205,33 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     content: `${docTitle}`
   });
 
+  const setLink = useCallback(() => {
+    const previousUrl = editor?.getAttributes('link').href
+    const url = window.prompt('URL', previousUrl)
+
+    // cancelled
+    if (url === null) {
+      return
+    }
+
+    // empty
+    if (url === '') {
+      editor?.chain().focus().extendMarkRange('link').unsetLink()
+        .run()
+
+      return
+    }
+
+    // update link
+    editor?.chain().focus().extendMarkRange('link').setLink({ href: url })
+      .run()
+  }, [editor])
+
+
+  if (!editor || !titleEditor) {
+    return null;
+  }
+
   function handleTitleEditorKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     if (!titleEditor || !editor) return
     const selection = titleEditor.state.selection
@@ -241,8 +251,29 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     }
   }
 
-  if (!editor || !titleEditor) {
-    return null;
+  function openDeleteModal() {
+    setDeleteModalIsOpen(true);
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDeleteModal() {
+    setDeleteModalIsOpen(false);
+    document.body.style.overflow = 'unset';
+  }
+
+  function handleDelete() {
+    setDeleteConfirmed(true);
+    closeDeleteModal();
+  }
+
+  function openShareModal() {
+    setShareModalIsOpen(true);
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeShareModal() {
+    setShareModalIsOpen(false);
+    document.body.style.overflow = 'unset';
   }
 
   return (
@@ -252,9 +283,9 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
         {shareModalIsOpen ? <ShareModal closeModal={closeShareModal} ></ShareModal> : null}
         <div className="document-nav-bar">
           <EditorContent onKeyDown={handleTitleEditorKeyDown} className='document-title' editor={titleEditor} />
-          <Menubar editor={editor} titleEditor={titleEditor} title={docTitle} docId={docId} doc={doc} deleteConfirmed={deleteConfirmed} openDeleteModal={openDeleteModal} setDeleteConfirmed={setDeleteConfirmed} openShareModal={openShareModal} setZen={setZen} />
+          <Menubar editor={editor} titleEditor={titleEditor} title={docTitle} docId={docId} doc={doc} deleteConfirmed={deleteConfirmed} openDeleteModal={openDeleteModal} setDeleteConfirmed={setDeleteConfirmed} openShareModal={openShareModal} setZen={setZen} setLink={setLink} />
           <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
-          <Toolbar editor={editor} />
+          <Toolbar editor={editor} setLink={setLink} />
         </div>
         <div className='document'>
           <EditorContent className="main-editor" editor={editor} />

@@ -16,10 +16,11 @@ interface MenubarProps {
   openDeleteModal: () => void,
   setDeleteConfirmed: React.Dispatch<React.SetStateAction<boolean>>,
   openShareModal: () => void,
-  setZen: React.Dispatch<React.SetStateAction<boolean>>
+  setZen: React.Dispatch<React.SetStateAction<boolean>>,
+  setLink: () => void,
 }
 
-const Menubar = ({ editor, titleEditor, title, docId, doc, deleteConfirmed, openDeleteModal, setDeleteConfirmed, openShareModal, setZen }: MenubarProps) => {
+const Menubar = ({ editor, titleEditor, title, docId, doc, deleteConfirmed, openDeleteModal, setDeleteConfirmed, openShareModal, setZen, setLink }: MenubarProps) => {
   const navigate = useNavigate();
   const [isMacOs, setIsMacOs] = useState(false);
 
@@ -77,6 +78,14 @@ const Menubar = ({ editor, titleEditor, title, docId, doc, deleteConfirmed, open
   const handleZen = () => {
     document.documentElement.requestFullscreen();
     setZen(true);
+  }
+
+  const handleImage = () => {
+    const url = window.prompt('URL')
+
+    if (url) {
+      editor?.chain().focus().setImage({ src: url }).run()
+    }
   }
 
   return (
@@ -167,21 +176,33 @@ const Menubar = ({ editor, titleEditor, title, docId, doc, deleteConfirmed, open
         </Menu.Button>
         <Menu.Items className='dropdown-items menubar-dropdown-items'>
           <Menu.Item>
-            <button className='menubar-button'>
+            <button onClick={handleImage} className='menubar-button'>
               Image
             </button>
           </Menu.Item>
-          <Menu.Item>
+          {/* <Menu.Item>
             <button className='menubar-button'>
               Drawing
             </button>
-          </Menu.Item>
+          </Menu.Item> */}
           <div>
             <hr></hr>
           </div>
           <Menu.Item>
-            <button className='menubar-button'>
-              Link
+            <button
+              onClick={setLink}
+              className='menubar-button'
+            >
+              Set link
+            </button>
+          </Menu.Item>
+          <Menu.Item>
+            <button
+              onClick={() => editor?.chain().focus().unsetLink().run()}
+              disabled={!editor?.isActive('link')}
+              className='menubar-button'
+            >
+              Unset link
             </button>
           </Menu.Item>
         </Menu.Items>

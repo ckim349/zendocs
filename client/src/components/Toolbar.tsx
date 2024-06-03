@@ -1,7 +1,12 @@
 import BaseTools from './BaseTools'
 import { CustomEditor } from './DocumentPage';
 
-const Toolbar = ({ editor }: {editor: CustomEditor}) => {
+interface ToolbarProps {
+  editor: CustomEditor,
+  setLink: () => void
+}
+
+const Toolbar = ({ editor, setLink }: ToolbarProps) => {
   if (!editor) {
     return null;
   }
@@ -26,7 +31,7 @@ const Toolbar = ({ editor }: {editor: CustomEditor}) => {
         className='format-button'
       >
         Undo
-      </button> 
+      </button>
       <button
         onClick={() => editor.chain().focus().redo().run()}
         disabled={!editor.can()
@@ -38,9 +43,9 @@ const Toolbar = ({ editor }: {editor: CustomEditor}) => {
       >
         Redo
       </button>
-      <button 
+      <button
         onClick={addImage}
-        className='format-button'  
+        className='format-button'
       >
         Add image
       </button>
@@ -51,6 +56,19 @@ const Toolbar = ({ editor }: {editor: CustomEditor}) => {
         Code
       </button>
       <BaseTools editor={editor} />
+      <button
+        onClick={setLink}
+        className='format-button'
+      >
+        Link
+      </button>
+      <button
+        onClick={() => editor.chain().focus().unsetLink().run()}
+        disabled={!editor.isActive('link')}
+        className='format-button'
+      >
+        Unlink
+      </button>
     </div>
   );
 };

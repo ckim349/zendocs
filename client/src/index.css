@@ -14,7 +14,7 @@
   --background-color: #f6f6f6;
   --foreground-color: #e8e8e8;
   --modal-overlay-color: rgba(173, 173, 173, 0.5);
-  --document-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --document-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
   --shadow-color: #0a0a0a;
   --primary-text-color: #0a0a0a;
   --secondary-text-color: #ffffff;
@@ -29,7 +29,7 @@
   --background-color: #0a0a0a;
   --foreground-color: #1c1c1c;
   --modal-overlay-color: rgba(14, 14, 14, 0.5);
-  --document-box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+  --document-box-shadow: 0px 0px 5px rgba(255, 255, 255, 0.5);
   --shadow-color: #f6f6f6;
   --primary-text-color: #f6f6f6;
   --secondary-text-color: #0a0a0a;
@@ -163,7 +163,7 @@ button:focus-visible {
 
 .document {
   margin-top: 130px;
-  margin-bottom: 30px;
+  margin-bottom: 60px;
   width: 755px;
   padding-bottom: var(--document-height);
   background-color: var(--background-color);
@@ -232,6 +232,10 @@ button:focus-visible {
     background-color: var(--foreground-color);
     border-radius: 5px;
     padding: 12px 16px;
+  }
+
+  a {
+    cursor: pointer;
   }
 }
 
@@ -473,7 +477,7 @@ button:focus-visible {
 }
 
 .zen .document {
-  margin-top: 30px;
+  margin-top: 50px;
 }
 
 .zen .container {
