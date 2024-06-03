@@ -25,10 +25,11 @@ import Italic from '@tiptap/extension-italic'
 import Strike from '@tiptap/extension-strike'
 import FontFamily from '@tiptap/extension-font-family'
 import Placeholder from '@tiptap/extension-placeholder'
+import Link from '@tiptap/extension-link'
 import { fromUint8Array, toUint8Array } from 'js-base64'
 import { TiptapCollabProvider } from '@hocuspocus/provider'
 import { debounce } from 'lodash';
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import * as Y from 'yjs'
 
 import { LineHeight } from '../tiptap_extensions/LineHeight'
@@ -38,6 +39,9 @@ import Toolbar from './Toolbar'
 import ToggleDarkMode from './ToggleDarkMode'
 import Menubar from './Menubar'
 import { useParams } from 'react-router-dom'
+import { loadDocument, updateDocument } from '../utils/documentRequests'
+import DeleteModal from './modals/DeleteModal'
+import ShareModal from './modals/ShareModal'
 
 export type CustomEditor = Editor | null;
 
@@ -49,8 +53,25 @@ export interface DarkModeProps {
 const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   // const [docId, setDocId] = useState();
   const { id: docId } = useParams();
+
   const [docTitle, setDocTitle] = useState<string>("");
+  const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
+  const [shareModalIsOpen, setShareModalIsOpen] = useState(false);
+  const [deleteConfirmed, setDeleteConfirmed] = useState(false);
+  const [zen, setZen] = useState(false);
   // const [saved, setSaved] = useState(true);
+
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      if (!zen) {
+        return;
+      }
+      if (!document.fullscreenElement) {
+        setZen(false);
+      }
+    };
+    addEventListener("fullscreenchange", onFullscreenChange);
+  })
 
   if (!docId) {
     return null;
@@ -68,73 +89,36 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     return provider;
   }, [doc]);
 
+  // const localProvider = useMemo(() => {
+  //   const provider = new IndexeddbPersistence(docId, doc);
+  //   return provider;
+  // }, [doc]);
+
   useEffect(() => {
-    // Udpate database document 4 seconds after last update
+    // localProvider.on('synced', () => {
+    //   console.log('local provider has been synced')
+    // })
+    // Udpate database document 3 seconds after last update
     doc.on('update', update => {
       const base64Encoded = fromUint8Array(update)
       debounceUpdate(base64Encoded, docId);
     })
     const debounceUpdate = debounce(async (base64Encoded, docId) => {
-      try {
-        const response = await fetch('http://localhost:5000/document/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            documentId: docId,
-            title: null,
-            content: base64Encoded
-          }),
-        });
-        const data = await response.json();
-        console.log(data);
-      } catch (error) {
-        console.error('Error:', error);
-      } finally {
-        // setSaved(true);
-      }
-    }, 4000);
+      updateDocument(base64Encoded, docId, docTitle);
+    }, 3000);
 
-    // Load document from database
-    fetch(`http://localhost:5000/document/load/${docId}`, {
-      method: "GET"
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        const update = toUint8Array(data.docToFind.content);
-        Y.applyUpdate(doc, update);
-        setDocTitle(data.docToFind.title);
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
+    const initialiseDocument = async () => {
+      // Load document from local and remote database
+      const storedDoc = await loadDocument(docId);
+      if (storedDoc.content !== "AA==" || storedDoc.content !== "AAA==" || storedDoc.content !== null) {
+        Y.applyUpdate(doc, toUint8Array(storedDoc.content));
+      }
+      setDocTitle(storedDoc.title);
+    }
+
+    initialiseDocument();
+
   }, [doc]);
-
-  useEffect(() => {
-    const updateTitle = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/document/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            documentId: docId,
-            title: docTitle,
-            content: null
-          }),
-        });
-        const data = await response.json();
-        console.log(data);
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    }
-    if (docTitle) {
-      updateTitle();
-    }
-  }, [docTitle]);
 
   const editor = useEditor({
     extensions: [
@@ -186,6 +170,13 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
       CodeBlock,
       ListItem,
       LineHeight,
+      Link.configure({
+        protocols: ['ftp', 'mailto'],
+        autolink: true,
+      }),
+      Link.extend({
+        inclusive: false
+      })
     ],
     content: ``,
   })
@@ -214,6 +205,33 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     content: `${docTitle}`
   });
 
+  const setLink = useCallback(() => {
+    const previousUrl = editor?.getAttributes('link').href
+    const url = window.prompt('URL', previousUrl)
+
+    // cancelled
+    if (url === null) {
+      return
+    }
+
+    // empty
+    if (url === '') {
+      editor?.chain().focus().extendMarkRange('link').unsetLink()
+        .run()
+
+      return
+    }
+
+    // update link
+    editor?.chain().focus().extendMarkRange('link').setLink({ href: url })
+      .run()
+  }, [editor])
+
+
+  if (!editor || !titleEditor) {
+    return null;
+  }
+
   function handleTitleEditorKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     if (!titleEditor || !editor) return
     const selection = titleEditor.state.selection
@@ -233,25 +251,49 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     }
   }
 
-  if (!editor) {
-    return null;
+  function openDeleteModal() {
+    setDeleteModalIsOpen(true);
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDeleteModal() {
+    setDeleteModalIsOpen(false);
+    document.body.style.overflow = 'unset';
+  }
+
+  function handleDelete() {
+    setDeleteConfirmed(true);
+    closeDeleteModal();
+  }
+
+  function openShareModal() {
+    setShareModalIsOpen(true);
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeShareModal() {
+    setShareModalIsOpen(false);
+    document.body.style.overflow = 'unset';
   }
 
   return (
-    <div className='container' data-theme={isDark ? "dark" : "light"}>
-      <div className="document-nav-bar">
-        <EditorContent onKeyDown={handleTitleEditorKeyDown} className='document-title' editor={titleEditor} />
-        <Menubar />
-        <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
-        <Toolbar editor={editor} />
-      </div>
-      <div>
+    <div className={zen ? 'zen' : ''}>
+      <div className='container' data-theme={isDark ? "dark" : "light"}>
+        {deleteModalIsOpen ? <DeleteModal closeModal={closeDeleteModal} handleDelete={handleDelete}></DeleteModal> : null}
+        {shareModalIsOpen ? <ShareModal closeModal={closeShareModal} ></ShareModal> : null}
+        <div className="document-nav-bar">
+          <EditorContent onKeyDown={handleTitleEditorKeyDown} className='document-title' editor={titleEditor} />
+          <Menubar editor={editor} titleEditor={titleEditor} title={docTitle} docId={docId} doc={doc} deleteConfirmed={deleteConfirmed} openDeleteModal={openDeleteModal} setDeleteConfirmed={setDeleteConfirmed} openShareModal={openShareModal} setZen={setZen} setLink={setLink} />
+          <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
+          <Toolbar editor={editor} setLink={setLink} />
+        </div>
         <div className='document'>
           <EditorContent className="main-editor" editor={editor} />
           <TextEditor editor={editor} />
         </div>
       </div>
     </div>
+
   )
 }
 

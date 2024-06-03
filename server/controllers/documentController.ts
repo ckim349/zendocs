@@ -33,6 +33,23 @@ exports.document_create_post = [
   }),
 ];
 
+// Handle document delete on POST.
+exports.document_delete_post = [
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log('errors :c')
+      return;
+    } else {
+      const documentId = req.body.documentId;
+
+      await Document.deleteMany({ documentId: documentId })
+
+      res.json({ success: true });
+    }
+  }),
+];
+
 // Handle document update on POST.
 exports.document_update_post = [
   asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
