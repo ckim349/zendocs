@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom"
 import { DarkModeProps } from "./DocumentPage";
-import ToggleDarkMode from "./ToggleDarkMode";
+import ToggleDarkMode from "../ToggleDarkMode";
 import { v4 as uuidv4 } from 'uuid';
-import { idb } from "../utils/idb";
-import { createDocument } from "../utils/documentRequests";
+import { idb } from "../../utils/idb";
+import { createDocument } from "../../utils/documentRequests";
 
 interface DatabaseDocument {
   documentId: string,

@@ -31,17 +31,17 @@ import { TiptapCollabProvider } from '@hocuspocus/provider'
 import { debounce } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import * as Y from 'yjs'
-
-import { LineHeight } from '../tiptap_extensions/LineHeight'
-import { SmilieReplacer } from '../tiptap_extensions/SmilieReplacer'
-import TextEditor from './TextEditor'
-import Toolbar from './Toolbar'
-import ToggleDarkMode from './ToggleDarkMode'
-import Menubar from './Menubar'
 import { useParams } from 'react-router-dom'
-import { loadDocument, updateDocument } from '../utils/documentRequests'
-import DeleteModal from './modals/DeleteModal'
-import ShareModal from './modals/ShareModal'
+
+import { LineHeight } from '../../tiptap_extensions/LineHeight'
+import { SmilieReplacer } from '../../tiptap_extensions/SmilieReplacer'
+import TextEditor from '../TextEditor'
+import Toolbar from '../Toolbar'
+import ToggleDarkMode from '../ToggleDarkMode'
+import Menubar from '../Menubar'
+import { loadDocument, updateDocument } from '../../utils/documentRequests'
+import DeleteModal from '../modals/DeleteModal'
+import ShareModal from '../modals/ShareModal'
 
 export type CustomEditor = Editor | null;
 

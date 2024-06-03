@@ -2,7 +2,7 @@ import { Menu } from '@headlessui/react'
 import { createDocument, deleteDocument, duplicateDocument } from "../utils/documentRequests";
 import { v4 as uuidv4 } from 'uuid';
 import * as Y from 'yjs'
-import { CustomEditor } from './DocumentPage';
+import { CustomEditor } from './pages/DocumentPage';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 

@@ -1,9 +1,9 @@
 import { Routes, Route } from 'react-router-dom'
 import useLocalStorage from 'use-local-storage';
 
-import HomePage from "./components/HomePage";
-import ErrorPage from "./components/ErrorPage";
-import DocumentPage from './components/DocumentPage';
+import HomePage from "./components/pages/HomePage";
+import ErrorPage from "./components/pages/ErrorPage";
+import DocumentPage from './components/pages/DocumentPage';
 
 function App() {
   const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;

@@ -1,5 +1,5 @@
 import BaseTools from './BaseTools'
-import { CustomEditor } from './DocumentPage';
+import { CustomEditor } from './pages/DocumentPage';
 
 interface ToolbarProps {
   editor: CustomEditor,

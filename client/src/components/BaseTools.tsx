@@ -1,5 +1,5 @@
 import { Menu } from '@headlessui/react'
-import { CustomEditor } from './DocumentPage';
+import { CustomEditor } from './pages/DocumentPage';
 
 const BaseTools = ({ editor }: { editor: CustomEditor }) => {
   if (!editor) {

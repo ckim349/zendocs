@@ -1,4 +1,4 @@
-import { DarkModeProps } from "./DocumentPage";
+import { DarkModeProps } from "./pages/DocumentPage";
 
 const ToggleDarkMode = ({ handleChange, isDark }: DarkModeProps) => {
   return (
