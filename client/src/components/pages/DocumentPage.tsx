@@ -32,7 +32,7 @@ import { debounce } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import * as Y from 'yjs'
 import { useParams } from 'react-router-dom'
-import { Link as RouterLink, useNavigate } from "react-router-dom"
+import { Link as RouterLink } from "react-router-dom"
 
 import { LineHeight } from '../../tiptap_extensions/LineHeight'
 import { SmilieReplacer } from '../../tiptap_extensions/SmilieReplacer'
@@ -60,7 +60,7 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   const [shareModalIsOpen, setShareModalIsOpen] = useState(false);
   const [deleteConfirmed, setDeleteConfirmed] = useState(false);
   const [zen, setZen] = useState(false);
-  const [isCollab, setIsCollab] = useState(false);
+  // const [isCollab, setIsCollab] = useState(false);
   const [remoteLoaded, setRemoteLoaded] = useState(false);
   const [loaded, setLoaded] = useState(false);
   // const [saved, setSaved] = useState(true);
@@ -92,9 +92,9 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
 
     })
 
-    provider.on("synced", () => {
-      setIsCollab(true)
-    })
+    // provider.on("synced", () => {
+    //   setIsCollab(true)
+    // })
 
     return provider;
   }, [doc]);

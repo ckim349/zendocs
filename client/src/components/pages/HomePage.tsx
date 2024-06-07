@@ -19,6 +19,8 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
   // once document object is created change string to thingy
   const [documents, setDocuments] = useState<DatabaseDocument[]>([]);
   const [query, setQuery] = useState("");
+  const [remoteLoaded, setRemoteLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
@@ -29,6 +31,7 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
       const getDocTransaction = (await idb.documents).transaction('localDocuments', 'readonly');
       const localDocuments = await getDocTransaction.store.getAll();
       setDocuments(localDocuments);
+      setLoaded(true);
 
       // Remote docs
       await fetch('http://localhost:5000/document_list', {
@@ -36,6 +39,7 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
       })
         .then((response) => response.json())
         .then(async (data) => {
+          setRemoteLoaded(true);
           const remoteDocuments = data.documents;
           const mergedDocuments = mergeDocuments(localDocuments, remoteDocuments);
 
@@ -149,31 +153,41 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
   };
 
   return (
-    <div className='container' data-theme={isDark ? "dark" : "light"}>
-      <div className="home-nav-bar">
-        <input type="search" onChange={e => setQuery(e.target.value)} className="home-search-bar" placeholder="Search for documents..." />
-        <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
-      </div>
-
-      <div className="home-document-card" onClick={handleClick}>
-        New Document
-      </div>
-
-      <form className="home-create-doc-form" onSubmit={onSubmit}>
-        New document: <input ref={inputRef} type="text" />
-        <button className="home-create-doc-button" type="submit">Add document</button>
-      </form>
-      <div className="home-document-grid">
-        {filteredDocuments.map((document, index) => (
-          <div className="home-document-card" key={index}>
-            <Link to={`/document/${document.documentId}`}>
-              <div className="home-document-card-content">document content</div>
-              <div className="home-document-card-title">{document.title}</div>
-            </Link>
+    loaded ?
+      <div className='container' data-theme={isDark ? "dark" : "light"}>
+        <div className="home-nav-bar">
+          <input type="search" onChange={e => setQuery(e.target.value)} className="home-search-bar" placeholder="Search for documents..." />
+          <div className="logo-title-loading" style={{ paddingLeft: '10px' }}>
+            <div>
+              {remoteLoaded ? <p>Working online</p> : <p>Working offline</p>}
+            </div>
           </div>
-        ))}
+          <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
+        </div>
+
+        <div className="home-document-card" onClick={handleClick}>
+          New Document
+        </div>
+
+        <form className="home-create-doc-form" onSubmit={onSubmit}>
+          New document: <input ref={inputRef} type="text" />
+          <button className="home-create-doc-button" type="submit">Add document</button>
+        </form>
+        <div className="home-document-grid">
+          {filteredDocuments.map((document, index) => (
+            <div className="home-document-card" key={index}>
+              <Link to={`/document/${document.documentId}`}>
+                <div className="home-document-card-content">document content</div>
+                <div className="home-document-card-title">{document.title}</div>
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div >
+      :
+      <div className="loading" data-theme={isDark ? "dark" : "light"}>
+        <h1>Loading</h1>
       </div>
-    </div >
   )
 }
 

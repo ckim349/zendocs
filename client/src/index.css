@@ -232,6 +232,8 @@ button:focus-visible {
     margin-top: 0px;
     margin-bottom: 0px;
     padding-right: 10px;
+    width: 60px;
+    text-align: center;
   }
 
   button {
