@@ -100,26 +100,23 @@ export const loadDocument = async (docId: string) => {
     const localDoc = await transaction.store.get(docId);
 
     // Load document from remote database
-    fetch(`http://localhost:5000/document/load/${docId}`, {
-      method: "GET"
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        // Return the doc that was updated last
-        if (data.docToFind.lastUpdatedDate >= localDoc.lastUpdatedDate) {
-          return data.docToFind;
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
+    try {
+      const response = await fetch(`http://localhost:5000/document/load/${docId}`, { method: "GET" })
+      const data = await response.json();
+      // Return the doc that was updated last
+      if (data.docToFind.lastUpdatedDate >= localDoc.lastUpdatedDate) {
+        return { doc: data.docToFind, remoteLoaded: true };
+      }
+    } catch {
+      console.error('Error fetching data');
+    }
 
-    return localDoc;
+    return { doc: localDoc, remoteLoaded: false };
   }
 
-  const doc = await getDoc();
+  const { doc, remoteLoaded } = await getDoc();
 
-  return doc;
+  return { doc, remoteLoaded };
 }
 
 export const updateDocument = async (base64Encoded: string, docId: string, docTitle: string) => {
@@ -145,21 +142,21 @@ export const updateDocument = async (base64Encoded: string, docId: string, docTi
   transaction.store.put(localDoc);
 
   // Remote database update
-  fetch(`http://localhost:5000/document/update`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      documentId: docId,
-      title: docTitle,
-      content: base64Encoded
-    }),
-  })
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => {
-      console.error('Error:', error)
-    }
-    );
+  try {
+    fetch(`http://localhost:5000/document/update`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        documentId: docId,
+        title: docTitle,
+        content: base64Encoded
+      }),
+    })
+  } catch {
+    return false;
+  }
+
+  return true;
 }

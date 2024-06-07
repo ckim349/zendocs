@@ -32,6 +32,7 @@ import { debounce } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import * as Y from 'yjs'
 import { useParams } from 'react-router-dom'
+import { Link as RouterLink, useNavigate } from "react-router-dom"
 
 import { LineHeight } from '../../tiptap_extensions/LineHeight'
 import { SmilieReplacer } from '../../tiptap_extensions/SmilieReplacer'
@@ -59,6 +60,9 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   const [shareModalIsOpen, setShareModalIsOpen] = useState(false);
   const [deleteConfirmed, setDeleteConfirmed] = useState(false);
   const [zen, setZen] = useState(false);
+  const [isCollab, setIsCollab] = useState(false);
+  const [remoteLoaded, setRemoteLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   // const [saved, setSaved] = useState(true);
 
   useEffect(() => {
@@ -85,39 +89,41 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
       appId: '7j9y6m10', // Your Cloud Dashboard AppID or `baseURL` for on-premises
       token: 'notoken',
       document: doc,
+
     })
+
+    provider.on("synced", () => {
+      setIsCollab(true)
+    })
+
     return provider;
   }, [doc]);
 
-  // const localProvider = useMemo(() => {
-  //   const provider = new IndexeddbPersistence(docId, doc);
-  //   return provider;
-  // }, [doc]);
+  useEffect(() => {
+    const initialiseDocument = async () => {
+      // Load document from local and remote database
+      const { doc: storedDoc, remoteLoaded } = await loadDocument(docId);
+      if (storedDoc.content !== "AA==" || storedDoc.content !== "AAA==" || storedDoc.content !== null) {
+        Y.applyUpdate(doc, toUint8Array(storedDoc.content));
+      }
+      setDocTitle(storedDoc.title);
+      setRemoteLoaded(remoteLoaded);
+      setLoaded(true);
+    }
+
+    initialiseDocument();
+  }, [doc])
 
   useEffect(() => {
-    // localProvider.on('synced', () => {
-    //   console.log('local provider has been synced')
-    // })
     // Udpate database document 3 seconds after last update
     doc.on('update', update => {
       const base64Encoded = fromUint8Array(update)
       debounceUpdate(base64Encoded, docId);
     })
     const debounceUpdate = debounce(async (base64Encoded, docId) => {
-      updateDocument(base64Encoded, docId, docTitle);
+      const updateSuccess = await updateDocument(base64Encoded, docId, docTitle);
+      setRemoteLoaded(updateSuccess);
     }, 3000);
-
-    const initialiseDocument = async () => {
-      // Load document from local and remote database
-      const storedDoc = await loadDocument(docId);
-      if (storedDoc.content !== "AA==" || storedDoc.content !== "AAA==" || storedDoc.content !== null) {
-        Y.applyUpdate(doc, toUint8Array(storedDoc.content));
-      }
-      setDocTitle(storedDoc.title);
-    }
-
-    initialiseDocument();
-
   }, [doc]);
 
   const editor = useEditor({
@@ -227,7 +233,6 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
       .run()
   }, [editor])
 
-
   if (!editor || !titleEditor) {
     return null;
   }
@@ -277,23 +282,37 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   }
 
   return (
-    <div className={zen ? 'zen' : ''}>
-      <div className='container' data-theme={isDark ? "dark" : "light"}>
-        {deleteModalIsOpen ? <DeleteModal closeModal={closeDeleteModal} handleDelete={handleDelete}></DeleteModal> : null}
-        {shareModalIsOpen ? <ShareModal closeModal={closeShareModal} ></ShareModal> : null}
-        <div className="document-nav-bar">
-          <EditorContent onKeyDown={handleTitleEditorKeyDown} className='document-title' editor={titleEditor} />
-          <Menubar editor={editor} titleEditor={titleEditor} title={docTitle} docId={docId} doc={doc} deleteConfirmed={deleteConfirmed} openDeleteModal={openDeleteModal} setDeleteConfirmed={setDeleteConfirmed} openShareModal={openShareModal} setZen={setZen} setLink={setLink} />
-          <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
-          <Toolbar editor={editor} setLink={setLink} />
-        </div>
-        <div className='document'>
-          <EditorContent className="main-editor" editor={editor} />
-          <TextEditor editor={editor} />
+    loaded ?
+      <div className={zen ? 'zen' : ''}>
+        <div className='container' data-theme={isDark ? "dark" : "light"}>
+          <div>
+            {deleteModalIsOpen ? <DeleteModal closeModal={closeDeleteModal} handleDelete={handleDelete}></DeleteModal> : null}
+            {shareModalIsOpen ? <ShareModal closeModal={closeShareModal} ></ShareModal> : null}
+            <div className="document-nav-bar">
+              <div className="logo-title-loading">
+                <RouterLink to='/'>
+                  <button>Home</button>
+                </RouterLink>
+                <EditorContent onKeyDown={handleTitleEditorKeyDown} className='document-title' editor={titleEditor} />
+                <div>
+                  {remoteLoaded ? <p>Working online</p> : <p>Working offline</p>}
+                </div>
+              </div>
+              <Menubar editor={editor} titleEditor={titleEditor} title={docTitle} docId={docId} doc={doc} deleteConfirmed={deleteConfirmed} openDeleteModal={openDeleteModal} setDeleteConfirmed={setDeleteConfirmed} openShareModal={openShareModal} setZen={setZen} setLink={setLink} />
+              <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
+              <Toolbar editor={editor} setLink={setLink} />
+            </div>
+            <div className='document'>
+              <EditorContent className="main-editor" editor={editor} />
+              <TextEditor editor={editor} />
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-
+      :
+      <div className="loading" data-theme={isDark ? "dark" : "light"}>
+        <h1>Loading</h1>
+      </div>
   )
 }
 
