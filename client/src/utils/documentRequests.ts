@@ -95,34 +95,42 @@ export const deleteDocument = async (docId: string) => {
 
 export const loadDocument = async (docId: string) => {
   const getDoc = async () => {
+    let localDoc;
+    let remoteDoc;
+
     try {
-      console.log('1')
       const transaction = (await idb.documents).transaction('localDocuments', 'readwrite');
-      const localDoc = await transaction.store.get(docId);
-      // Load document from remote database
-      console.log('2')
-      const response = await fetch(`http://localhost:5000/document/load/${docId}`, { method: "GET" })
-      const data = await response.json();
-      // Return the doc that was updated last
-      if (data.docToFind.lastUpdatedDate >= localDoc.lastUpdatedDate) {
-        return { doc: data.docToFind, remoteLoaded: true };
-      }
+      localDoc = await transaction.store.get(docId);
     } catch {
-      try {
-        // If doc does not exist on user's idb, just get remote version.
-        const response = await fetch(`http://localhost:5000/document/load/${docId}`, { method: "GET" })
-        const data = await response.json();
-        return { doc: data.docToFind, remoteLoaded: true };
-      } catch {
-        console.error('Error fetching data');
-      }
+      console.error('Error fetching local document:');
     }
 
-    return { doc: null, remoteLoaded: false };
+    try {
+      // Load document from remote database
+      const response = await fetch(`http://localhost:5000/document/load/${docId}`, { method: "GET" })
+      const data = await response.json();
+      remoteDoc = data.docToFind;
+    } catch {
+      console.error('Error fetching local document:');
+    }
+
+    if (!localDoc && !remoteDoc) {
+      return { doc: null, remoteLoaded: false };
+    } else if (!localDoc && remoteDoc) {
+      return { doc: remoteDoc, remoteLoaded: true };
+    } else if (localDoc && !remoteDoc) {
+      return { doc: localDoc, remoteLoaded: false };
+    }
+
+    // Return the doc that was updated last
+    if (remoteDoc.lastUpdatedDate >= localDoc.lastUpdatedDate) {
+      return { doc: remoteDoc, remoteLoaded: true };
+    } else {
+      return { doc: localDoc, remoteLoaded: true };
+    }
   }
 
   const { doc, remoteLoaded } = await getDoc();
-
   return { doc, remoteLoaded };
 }
 

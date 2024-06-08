@@ -64,6 +64,7 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   const [remoteLoaded, setRemoteLoaded] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [saved, setSaved] = useState(true);
+  const [failedToLoad, setFailedToLoad] = useState(false);
 
   useEffect(() => {
     const onFullscreenChange = () => {
@@ -102,6 +103,10 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     const initialiseDocument = async () => {
       // Load document from local and remote database
       const { doc: storedDoc, remoteLoaded } = await loadDocument(docId);
+      if (storedDoc === null) {
+        setFailedToLoad(true);
+      }
+
       if (storedDoc.content !== "AA==" || storedDoc.content !== "AAA==" || storedDoc.content !== null) {
         Y.applyUpdate(doc, toUint8Array(storedDoc.content));
       }
@@ -319,8 +324,16 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
         </div>
       </div>
       :
-      <div className="loading" data-theme={isDark ? "dark" : "light"}>
+      <div className="loading" style={{ flexDirection: 'column' }} data-theme={isDark ? "dark" : "light"}>
         <h1>Loading</h1>
+        {failedToLoad ?
+          <div className="logo-title-loading">
+            <RouterLink to='/'>
+              <button>Failed to load. Click to go to home</button>
+            </RouterLink>
+          </div>
+          :
+          null}
       </div>
   )
 }
