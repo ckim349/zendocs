@@ -32,6 +32,7 @@ import { debounce } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import * as Y from 'yjs'
 import { useParams } from 'react-router-dom'
+import { Link as RouterLink } from "react-router-dom"
 
 import { LineHeight } from '../../tiptap_extensions/LineHeight'
 import { SmilieReplacer } from '../../tiptap_extensions/SmilieReplacer'
@@ -54,12 +55,16 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   // const [docId, setDocId] = useState();
   const { id: docId } = useParams();
 
-  const [docTitle, setDocTitle] = useState<string>("");
+  const [storedTitle, setStoredTitle] = useState("")
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
   const [shareModalIsOpen, setShareModalIsOpen] = useState(false);
   const [deleteConfirmed, setDeleteConfirmed] = useState(false);
   const [zen, setZen] = useState(false);
-  // const [saved, setSaved] = useState(true);
+  const [isCollab, setIsCollab] = useState(false);
+  const [remoteLoaded, setRemoteLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [saved, setSaved] = useState(true);
+  const [failedToLoad, setFailedToLoad] = useState(false);
 
   useEffect(() => {
     const onFullscreenChange = () => {
@@ -86,39 +91,77 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
       token: 'notoken',
       document: doc,
     })
+
+    provider.on("synced", () => {
+      setIsCollab(true)
+    })
+
     return provider;
   }, [doc]);
 
-  // const localProvider = useMemo(() => {
-  //   const provider = new IndexeddbPersistence(docId, doc);
-  //   return provider;
-  // }, [doc]);
-
   useEffect(() => {
-    // localProvider.on('synced', () => {
-    //   console.log('local provider has been synced')
-    // })
-    // Udpate database document 3 seconds after last update
-    doc.on('update', update => {
-      const base64Encoded = fromUint8Array(update)
-      debounceUpdate(base64Encoded, docId);
-    })
-    const debounceUpdate = debounce(async (base64Encoded, docId) => {
-      updateDocument(base64Encoded, docId, docTitle);
-    }, 3000);
-
     const initialiseDocument = async () => {
       // Load document from local and remote database
-      const storedDoc = await loadDocument(docId);
+      const { doc: storedDoc, remoteLoaded } = await loadDocument(docId);
+      if (storedDoc === null) {
+        setFailedToLoad(true);
+      }
+
       if (storedDoc.content !== "AA==" || storedDoc.content !== "AAA==" || storedDoc.content !== null) {
         Y.applyUpdate(doc, toUint8Array(storedDoc.content));
       }
-      setDocTitle(storedDoc.title);
+      setStoredTitle(storedDoc.title);
+      setRemoteLoaded(remoteLoaded);
+      setLoaded(true);
     }
 
     initialiseDocument();
+  }, [doc])
 
-  }, [doc]);
+  const titleEditor = useEditor({
+    extensions: [
+      Document.extend({
+        content: "heading"
+      }),
+      Text,
+      Heading.configure({
+        levels: [2]
+      }),
+      Placeholder.configure({
+        placeholder: "Enter a title"
+      }),
+      Collaboration.configure({
+        document: remoteProvider.document,
+        field: "title"
+      }),
+      // CollaborationCursor.configure({
+      //   provider: remoteProvider,
+      //   // user: userCursor
+      // }),
+    ],
+  });
+
+  useEffect(() => {
+    titleEditor?.commands.setContent("");
+    titleEditor?.commands.setContent(storedTitle);
+  }, [storedTitle])
+
+  const debounceUpdate = debounce(async (base64Encoded, docId) => {
+    if (titleEditor) {
+      const updateSuccess = await updateDocument(base64Encoded, docId, titleEditor?.getText());
+      setRemoteLoaded(updateSuccess);
+      setSaved(true);
+    }
+  }, 2000)
+
+  useEffect(() => {
+    // Update document 2 seconds after last update
+    doc.on('update', update => {
+      setSaved(false)
+      const base64Encoded = fromUint8Array(update)
+      debounceUpdate(base64Encoded, docId);
+    })
+  }, [doc, titleEditor]);
 
   const editor = useEditor({
     extensions: [
@@ -181,39 +224,13 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     content: ``,
   })
 
-  const titleEditor = useEditor({
-    extensions: [
-      Document.extend({
-        content: "heading"
-      }),
-      Text,
-      Heading.configure({
-        levels: [2]
-      }),
-      Placeholder.configure({
-        placeholder: "Enter a title"
-      }),
-      Collaboration.configure({
-        document: remoteProvider.document,
-        field: "title"
-      }),
-      // CollaborationCursor.configure({
-      //   provider: remoteProvider,
-      //   // user: userCursor
-      // }),
-    ],
-    content: `${docTitle}`
-  });
-
   const setLink = useCallback(() => {
     const previousUrl = editor?.getAttributes('link').href
     const url = window.prompt('URL', previousUrl)
-
     // cancelled
     if (url === null) {
       return
     }
-
     // empty
     if (url === '') {
       editor?.chain().focus().extendMarkRange('link').unsetLink()
@@ -221,33 +238,32 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
 
       return
     }
-
     // update link
     editor?.chain().focus().extendMarkRange('link').setLink({ href: url })
       .run()
   }, [editor])
 
-
   if (!editor || !titleEditor) {
     return null;
   }
 
+  function updateTitle() {
+    if (!editor || !titleEditor) {
+      return;
+    }
+    if (titleEditor.getText() === '') {
+      titleEditor.commands.setContent('Untitled');
+    }
+    editor.commands.focus();
+  }
+
   function handleTitleEditorKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
-    if (!titleEditor || !editor) return
-    const selection = titleEditor.state.selection
     if (event.shiftKey) {
       return
     }
 
     if (event.key === "Enter" || event.key === "ArrowDown") {
-      setDocTitle(titleEditor.getText());
-      editor.commands.focus("start")
-    }
-
-    if (event.key === "ArrowRight") {
-      if (selection?.$head.nodeAfter === null) {
-        editor.commands.focus("start")
-      }
+      updateTitle();
     }
   }
 
@@ -277,23 +293,48 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   }
 
   return (
-    <div className={zen ? 'zen' : ''}>
-      <div className='container' data-theme={isDark ? "dark" : "light"}>
-        {deleteModalIsOpen ? <DeleteModal closeModal={closeDeleteModal} handleDelete={handleDelete}></DeleteModal> : null}
-        {shareModalIsOpen ? <ShareModal closeModal={closeShareModal} ></ShareModal> : null}
-        <div className="document-nav-bar">
-          <EditorContent onKeyDown={handleTitleEditorKeyDown} className='document-title' editor={titleEditor} />
-          <Menubar editor={editor} titleEditor={titleEditor} title={docTitle} docId={docId} doc={doc} deleteConfirmed={deleteConfirmed} openDeleteModal={openDeleteModal} setDeleteConfirmed={setDeleteConfirmed} openShareModal={openShareModal} setZen={setZen} setLink={setLink} />
-          <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
-          <Toolbar editor={editor} setLink={setLink} />
-        </div>
-        <div className='document'>
-          <EditorContent className="main-editor" editor={editor} />
-          <TextEditor editor={editor} />
+    loaded ?
+      <div className={zen ? 'zen' : ''}>
+        <div className='container' data-theme={isDark ? "dark" : "light"}>
+          <div>
+            {deleteModalIsOpen ? <DeleteModal closeModal={closeDeleteModal} handleDelete={handleDelete}></DeleteModal> : null}
+            {shareModalIsOpen ? <ShareModal closeModal={closeShareModal} ></ShareModal> : null}
+            <div className="document-nav-bar">
+              <div className="logo-title-loading">
+                <RouterLink to='/'>
+                  <button>Home</button>
+                </RouterLink>
+                <EditorContent onKeyDown={handleTitleEditorKeyDown} onBlur={updateTitle} className='document-title' editor={titleEditor} />
+                <div>
+                  {isCollab ? <p>Collab online</p> : <p>Collab offline</p>}
+                </div>
+                <div>
+                  {remoteLoaded ? saved ? <p>Saved</p> : <p>Saving...</p> : saved ? <p>Saved to this device</p> : <p>Saving..</p>}
+                </div>
+              </div>
+              <Menubar editor={editor} titleEditor={titleEditor} title={titleEditor?.getText()} docId={docId} doc={doc} deleteConfirmed={deleteConfirmed} openDeleteModal={openDeleteModal} setDeleteConfirmed={setDeleteConfirmed} openShareModal={openShareModal} setZen={setZen} setLink={setLink} />
+              <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
+              <Toolbar editor={editor} setLink={setLink} />
+            </div>
+            <div className='document'>
+              <EditorContent className="main-editor" editor={editor} />
+              <TextEditor editor={editor} />
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-
+      :
+      <div className="loading" style={{ flexDirection: 'column' }} data-theme={isDark ? "dark" : "light"}>
+        <h1>Loading</h1>
+        {failedToLoad ?
+          <div className="logo-title-loading">
+            <RouterLink to='/'>
+              <button>Failed to load. Click to go to home</button>
+            </RouterLink>
+          </div>
+          :
+          null}
+      </div>
   )
 }
 

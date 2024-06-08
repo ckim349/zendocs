@@ -95,34 +95,46 @@ export const deleteDocument = async (docId: string) => {
 
 export const loadDocument = async (docId: string) => {
   const getDoc = async () => {
+    let localDoc;
+    let remoteDoc;
 
-    const transaction = (await idb.documents).transaction('localDocuments', 'readwrite');
-    const localDoc = await transaction.store.get(docId);
+    try {
+      const transaction = (await idb.documents).transaction('localDocuments', 'readwrite');
+      localDoc = await transaction.store.get(docId);
+    } catch {
+      console.error('Error fetching local document:');
+    }
 
-    // Load document from remote database
-    fetch(`http://localhost:5000/document/load/${docId}`, {
-      method: "GET"
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        // Return the doc that was updated last
-        if (data.docToFind.lastUpdatedDate >= localDoc.lastUpdatedDate) {
-          return data.docToFind;
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
+    try {
+      // Load document from remote database
+      const response = await fetch(`http://localhost:5000/document/load/${docId}`, { method: "GET" })
+      const data = await response.json();
+      remoteDoc = data.docToFind;
+    } catch {
+      console.error('Error fetching local document:');
+    }
 
-    return localDoc;
+    if (!localDoc && !remoteDoc) {
+      return { doc: null, remoteLoaded: false };
+    } else if (!localDoc && remoteDoc) {
+      return { doc: remoteDoc, remoteLoaded: true };
+    } else if (localDoc && !remoteDoc) {
+      return { doc: localDoc, remoteLoaded: false };
+    }
+
+    // Return the doc that was updated last
+    if (remoteDoc.lastUpdatedDate >= localDoc.lastUpdatedDate) {
+      return { doc: remoteDoc, remoteLoaded: true };
+    } else {
+      return { doc: localDoc, remoteLoaded: true };
+    }
   }
 
-  const doc = await getDoc();
-
-  return doc;
+  const { doc, remoteLoaded } = await getDoc();
+  return { doc, remoteLoaded };
 }
 
-export const updateDocument = async (base64Encoded: string, docId: string, docTitle: string) => {
+export const updateDocument = async (base64Encoded: string, docId: string, docTitle: string | undefined) => {
   // local database update
   const transaction = (await idb.documents).transaction('localDocuments', 'readwrite');
   const localDoc = await transaction.store.get(docId);
@@ -137,7 +149,7 @@ export const updateDocument = async (base64Encoded: string, docId: string, docTi
     Y.applyUpdate(doc, update);
     localDoc.content = fromUint8Array(Y.encodeStateAsUpdate(doc))
   }
-  if (docTitle !== "" && docTitle !== null) {
+  if (docTitle !== "" && docTitle !== null && docTitle !== undefined) {
     localDoc.title = docTitle;
   }
   localDoc.lastUpdatedDate = new Date().toISOString();
@@ -145,21 +157,21 @@ export const updateDocument = async (base64Encoded: string, docId: string, docTi
   transaction.store.put(localDoc);
 
   // Remote database update
-  fetch(`http://localhost:5000/document/update`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      documentId: docId,
-      title: docTitle,
-      content: base64Encoded
-    }),
-  })
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => {
-      console.error('Error:', error)
-    }
-    );
+  try {
+    await fetch(`http://localhost:5000/document/update`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        documentId: docId,
+        title: docTitle,
+        content: base64Encoded
+      }),
+    })
+  } catch {
+    return false;
+  }
+
+  return true;
 }

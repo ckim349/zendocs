@@ -193,6 +193,7 @@ button:focus-visible {
   box-sizing: border-box;
   /* padding: 8px; */
   height: 120px;
+  margin: 0px;
 }
 
 .toolbar {
@@ -205,7 +206,9 @@ button:focus-visible {
 }
 
 .document-title {
+  min-width: 100px;
   border-radius: 4px;
+  margin-right: 10px;
 
   h2 {
     padding: 0px;
@@ -213,11 +216,41 @@ button:focus-visible {
   }
 
   .tiptap.ProseMirror {
-    max-width: 50%;
+    max-width: 600px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     text-align: left;
+  }
+}
+
+.logo-title-loading {
+  display: flex;
+  align-items: center;
+
+  p {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    width: 80px;
+    text-align: center;
+    line-height: 1.1;
+  }
+
+  button {
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 5px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    background-color: var(--background-color);
+    color: var(--primary-text-color);
+    cursor: pointer;
+    border-radius: 4px;
+  }
+
+  button:hover {
+    background-color: var(--button-hover-color);
   }
 }
 
@@ -237,6 +270,16 @@ button:focus-visible {
   a {
     cursor: pointer;
   }
+}
+
+.loading {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
 }
 
 /* Give a remote user a caret */
@@ -496,7 +539,7 @@ button:focus-visible {
   }
 
   .document {
-    min-width: 755px;
+    max-width: 755px;
     height: 9in;
     margin: 0;
     padding: 0;
@@ -511,9 +554,9 @@ button:focus-visible {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 818px) {
   .document {
-    width: 90%;
+    width: calc(85vw);
     /* Adjust width for smaller screens */
   }
 
