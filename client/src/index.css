@@ -231,9 +231,9 @@ button:focus-visible {
   p {
     margin-top: 0px;
     margin-bottom: 0px;
-    padding-right: 10px;
-    width: 60px;
+    width: 80px;
     text-align: center;
+    line-height: 1.1;
   }
 
   button {

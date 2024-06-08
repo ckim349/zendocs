@@ -107,7 +107,8 @@ const HomePage = ({ handleChange, isDark }: DarkModeProps) => {
       return documents.
         filter(document => {
           // TODO occasional error where document titles are becoming null on update
-          if ((!document.hasOwnProperty('deleted') || (document.hasOwnProperty('deleted') && !document.deleted)) && document.title !== null) {
+          if ((!document.hasOwnProperty('deleted') || (document.hasOwnProperty('deleted') && !document.deleted)) && document.title !== null && document.title !== undefined) {
+            console.log(document.title);
             return document.title.toLowerCase().includes(query.toLowerCase());
           }
         }).sort((a, b) => {

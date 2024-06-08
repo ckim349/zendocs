@@ -55,15 +55,15 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   // const [docId, setDocId] = useState();
   const { id: docId } = useParams();
 
-  const [docTitle, setDocTitle] = useState<string>("");
+  const [storedTitle, setStoredTitle] = useState("")
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
   const [shareModalIsOpen, setShareModalIsOpen] = useState(false);
   const [deleteConfirmed, setDeleteConfirmed] = useState(false);
   const [zen, setZen] = useState(false);
-  // const [isCollab, setIsCollab] = useState(false);
+  const [isCollab, setIsCollab] = useState(false);
   const [remoteLoaded, setRemoteLoaded] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  // const [saved, setSaved] = useState(true);
+  const [saved, setSaved] = useState(true);
 
   useEffect(() => {
     const onFullscreenChange = () => {
@@ -89,12 +89,11 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
       appId: '7j9y6m10', // Your Cloud Dashboard AppID or `baseURL` for on-premises
       token: 'notoken',
       document: doc,
-
     })
 
-    // provider.on("synced", () => {
-    //   setIsCollab(true)
-    // })
+    provider.on("synced", () => {
+      setIsCollab(true)
+    })
 
     return provider;
   }, [doc]);
@@ -106,7 +105,7 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
       if (storedDoc.content !== "AA==" || storedDoc.content !== "AAA==" || storedDoc.content !== null) {
         Y.applyUpdate(doc, toUint8Array(storedDoc.content));
       }
-      setDocTitle(storedDoc.title);
+      setStoredTitle(storedDoc.title);
       setRemoteLoaded(remoteLoaded);
       setLoaded(true);
     }
@@ -114,17 +113,51 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     initialiseDocument();
   }, [doc])
 
+  const titleEditor = useEditor({
+    extensions: [
+      Document.extend({
+        content: "heading"
+      }),
+      Text,
+      Heading.configure({
+        levels: [2]
+      }),
+      Placeholder.configure({
+        placeholder: "Enter a title"
+      }),
+      Collaboration.configure({
+        document: remoteProvider.document,
+        field: "title"
+      }),
+      // CollaborationCursor.configure({
+      //   provider: remoteProvider,
+      //   // user: userCursor
+      // }),
+    ],
+  });
+
   useEffect(() => {
-    // Udpate database document 3 seconds after last update
+    titleEditor?.commands.setContent(storedTitle);
+  }, [storedTitle])
+
+  const debounceUpdate = debounce(async (base64Encoded, docId) => {
+    if (titleEditor) {
+      console.log('from debounce: ', titleEditor?.getText())
+      const updateSuccess = await updateDocument(base64Encoded, docId, titleEditor?.getText());
+      setRemoteLoaded(updateSuccess);
+      setSaved(true);
+    }
+  }, 2000)
+
+  useEffect(() => {
+    // Update document 2 seconds after last update
     doc.on('update', update => {
+      setSaved(false)
       const base64Encoded = fromUint8Array(update)
+      console.log('current doc title: ', titleEditor?.getText())
       debounceUpdate(base64Encoded, docId);
     })
-    const debounceUpdate = debounce(async (base64Encoded, docId) => {
-      const updateSuccess = await updateDocument(base64Encoded, docId, docTitle);
-      setRemoteLoaded(updateSuccess);
-    }, 3000);
-  }, [doc]);
+  }, [doc, titleEditor]);
 
   const editor = useEditor({
     extensions: [
@@ -187,39 +220,13 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     content: ``,
   })
 
-  const titleEditor = useEditor({
-    extensions: [
-      Document.extend({
-        content: "heading"
-      }),
-      Text,
-      Heading.configure({
-        levels: [2]
-      }),
-      Placeholder.configure({
-        placeholder: "Enter a title"
-      }),
-      Collaboration.configure({
-        document: remoteProvider.document,
-        field: "title"
-      }),
-      // CollaborationCursor.configure({
-      //   provider: remoteProvider,
-      //   // user: userCursor
-      // }),
-    ],
-    content: `${docTitle}`
-  });
-
   const setLink = useCallback(() => {
     const previousUrl = editor?.getAttributes('link').href
     const url = window.prompt('URL', previousUrl)
-
     // cancelled
     if (url === null) {
       return
     }
-
     // empty
     if (url === '') {
       editor?.chain().focus().extendMarkRange('link').unsetLink()
@@ -227,7 +234,6 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
 
       return
     }
-
     // update link
     editor?.chain().focus().extendMarkRange('link').setLink({ href: url })
       .run()
@@ -237,22 +243,23 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     return null;
   }
 
+  function updateTitle() {
+    if (!editor || !titleEditor) {
+      return;
+    }
+    if (titleEditor.getText() === '') {
+      titleEditor.commands.setContent('Untitled');
+    }
+    editor.commands.focus();
+  }
+
   function handleTitleEditorKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
-    if (!titleEditor || !editor) return
-    const selection = titleEditor.state.selection
     if (event.shiftKey) {
       return
     }
 
     if (event.key === "Enter" || event.key === "ArrowDown") {
-      setDocTitle(titleEditor.getText());
-      editor.commands.focus("start")
-    }
-
-    if (event.key === "ArrowRight") {
-      if (selection?.$head.nodeAfter === null) {
-        editor.commands.focus("start")
-      }
+      updateTitle();
     }
   }
 
@@ -293,12 +300,15 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
                 <RouterLink to='/'>
                   <button>Home</button>
                 </RouterLink>
-                <EditorContent onKeyDown={handleTitleEditorKeyDown} className='document-title' editor={titleEditor} />
+                <EditorContent onKeyDown={handleTitleEditorKeyDown} onBlur={updateTitle} className='document-title' editor={titleEditor} />
                 <div>
-                  {remoteLoaded ? <p>Working online</p> : <p>Working offline</p>}
+                  {isCollab ? <p>Collab online</p> : <p>Collab offline</p>}
+                </div>
+                <div>
+                  {remoteLoaded ? saved ? <p>Saved</p> : <p>Saving...</p> : saved ? <p>Saved to this device</p> : <p>Saving..</p>}
                 </div>
               </div>
-              <Menubar editor={editor} titleEditor={titleEditor} title={docTitle} docId={docId} doc={doc} deleteConfirmed={deleteConfirmed} openDeleteModal={openDeleteModal} setDeleteConfirmed={setDeleteConfirmed} openShareModal={openShareModal} setZen={setZen} setLink={setLink} />
+              <Menubar editor={editor} titleEditor={titleEditor} title={titleEditor?.getText()} docId={docId} doc={doc} deleteConfirmed={deleteConfirmed} openDeleteModal={openDeleteModal} setDeleteConfirmed={setDeleteConfirmed} openShareModal={openShareModal} setZen={setZen} setLink={setLink} />
               <ToggleDarkMode handleChange={handleChange} isDark={isDark} />
               <Toolbar editor={editor} setLink={setLink} />
             </div>

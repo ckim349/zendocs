@@ -119,7 +119,7 @@ export const loadDocument = async (docId: string) => {
   return { doc, remoteLoaded };
 }
 
-export const updateDocument = async (base64Encoded: string, docId: string, docTitle: string) => {
+export const updateDocument = async (base64Encoded: string, docId: string, docTitle: string | undefined) => {
   // local database update
   const transaction = (await idb.documents).transaction('localDocuments', 'readwrite');
   const localDoc = await transaction.store.get(docId);
@@ -134,8 +134,10 @@ export const updateDocument = async (base64Encoded: string, docId: string, docTi
     Y.applyUpdate(doc, update);
     localDoc.content = fromUint8Array(Y.encodeStateAsUpdate(doc))
   }
-  if (docTitle !== "" && docTitle !== null) {
+  console.log('title from docrequest: ', docTitle)
+  if (docTitle !== "" && docTitle !== null && docTitle !== undefined) {
     localDoc.title = docTitle;
+    console.log('updated title')
   }
   localDoc.lastUpdatedDate = new Date().toISOString();
 
@@ -143,7 +145,7 @@ export const updateDocument = async (base64Encoded: string, docId: string, docTi
 
   // Remote database update
   try {
-    fetch(`http://localhost:5000/document/update`, {
+    await fetch(`http://localhost:5000/document/update`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
