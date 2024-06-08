@@ -539,7 +539,7 @@ button:focus-visible {
   }
 
   .document {
-    min-width: 755px;
+    max-width: 755px;
     height: 9in;
     margin: 0;
     padding: 0;

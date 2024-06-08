@@ -137,12 +137,12 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
   });
 
   useEffect(() => {
+    titleEditor?.commands.setContent("");
     titleEditor?.commands.setContent(storedTitle);
   }, [storedTitle])
 
   const debounceUpdate = debounce(async (base64Encoded, docId) => {
     if (titleEditor) {
-      console.log('from debounce: ', titleEditor?.getText())
       const updateSuccess = await updateDocument(base64Encoded, docId, titleEditor?.getText());
       setRemoteLoaded(updateSuccess);
       setSaved(true);
@@ -154,7 +154,6 @@ const DocumentPage = ({ handleChange, isDark }: DarkModeProps) => {
     doc.on('update', update => {
       setSaved(false)
       const base64Encoded = fromUint8Array(update)
-      console.log('current doc title: ', titleEditor?.getText())
       debounceUpdate(base64Encoded, docId);
     })
   }, [doc, titleEditor]);

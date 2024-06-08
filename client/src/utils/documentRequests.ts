@@ -95,12 +95,12 @@ export const deleteDocument = async (docId: string) => {
 
 export const loadDocument = async (docId: string) => {
   const getDoc = async () => {
-
-    const transaction = (await idb.documents).transaction('localDocuments', 'readwrite');
-    const localDoc = await transaction.store.get(docId);
-
-    // Load document from remote database
     try {
+      console.log('1')
+      const transaction = (await idb.documents).transaction('localDocuments', 'readwrite');
+      const localDoc = await transaction.store.get(docId);
+      // Load document from remote database
+      console.log('2')
       const response = await fetch(`http://localhost:5000/document/load/${docId}`, { method: "GET" })
       const data = await response.json();
       // Return the doc that was updated last
@@ -108,10 +108,17 @@ export const loadDocument = async (docId: string) => {
         return { doc: data.docToFind, remoteLoaded: true };
       }
     } catch {
-      console.error('Error fetching data');
+      try {
+        // If doc does not exist on user's idb, just get remote version.
+        const response = await fetch(`http://localhost:5000/document/load/${docId}`, { method: "GET" })
+        const data = await response.json();
+        return { doc: data.docToFind, remoteLoaded: true };
+      } catch {
+        console.error('Error fetching data');
+      }
     }
 
-    return { doc: localDoc, remoteLoaded: false };
+    return { doc: null, remoteLoaded: false };
   }
 
   const { doc, remoteLoaded } = await getDoc();
@@ -134,10 +141,8 @@ export const updateDocument = async (base64Encoded: string, docId: string, docTi
     Y.applyUpdate(doc, update);
     localDoc.content = fromUint8Array(Y.encodeStateAsUpdate(doc))
   }
-  console.log('title from docrequest: ', docTitle)
   if (docTitle !== "" && docTitle !== null && docTitle !== undefined) {
     localDoc.title = docTitle;
-    console.log('updated title')
   }
   localDoc.lastUpdatedDate = new Date().toISOString();
 
